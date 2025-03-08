@@ -1,0 +1,178 @@
+/* Styles généraux */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Helvetica Neue', sans-serif;
+  background-color: #f4f6f9;
+  color: #333;
+}
+
+/* Container */
+.create-exam-container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.header h1 {
+  font-size: 2.5em;
+  font-weight: bold;
+  color: #007bff;
+}
+
+.header p {
+  font-size: 1.2em;
+  color: #555;
+}
+
+/* Formulaire */
+.exam-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  font-size: 1.1em;
+  color: #555;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  font-size: 1.1em;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+/* Questions */
+.questions-section {
+  margin-top: 40px;
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.05);
+}
+
+.questions-section h3 {
+  font-size: 1.6em;
+  margin-bottom: 20px;
+}
+
+.question-input textarea {
+  margin-bottom: 10px;
+}
+
+.add-question-btn {
+  background-color: #28a745;
+  color: #fff;
+  font-size: 1.1em;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.add-question-btn:hover {
+  background-color: #218838;
+}
+
+/* Fichiers */
+.file-upload-section {
+  margin-top: 30px;
+  padding: 20px;
+  background: #f1f1f1;
+  border-radius: 8px;
+}
+
+.file-upload-section h3 {
+  font-size: 1.4em;
+  margin-bottom: 15px;
+}
+
+.file-upload-section input {
+  font-size: 1em;
+  padding: 10px;
+}
+
+.file-list {
+  list-style-type: none;
+  margin-top: 10px;
+}
+
+.file-item {
+  display: flex;
+  justify-content: space-between;
+  background: #fff;
+  padding: 10px;
+  margin-top: 5px;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.remove-file-btn {
+  background: red;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.remove-file-btn:hover {
+  background: darkred;
+}
+
+/* Bouton submit */
+.submit-btn {
+  background-color: #007bff;
+  color: #fff;
+  font-size: 1.2em;
+  padding: 15px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.submit-btn:hover {
+  background-color: #0056b3;
+}
+
+.back-to-home {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.back-link {
+  font-size: 16px;
+  text-decoration: none;
+  color: #007BFF;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
