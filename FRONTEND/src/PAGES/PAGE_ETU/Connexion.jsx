@@ -17,27 +17,7 @@ function Connexion() {
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if(!email || !mot_de_passe) {
-      setMessage('Veuillez remplir tous les champs svp.');
-      setColor('secondary');
-    } else {
-      try {
-        const reponse = await axios.post('http://localhost:5000/api/auth/connexion', { email, mot_de_passe, role });
-        setMessage('Connexion réussie.');
-        setColor('success');
-        localStorage.setItem('token', reponse.data.token);
-        localStorage.setItem('role', role);
-        localStorage.setItem('id', reponse.data.id);
-        setTimeout(() => {
-          navigate('/etudiant');
-        }, 2000);
-      } catch (error) {
-        console.log('Erreur: ', error);
-        setMessage('Email, mot de passe ou role incorrect.');
-        setColor('error');
-    }
-  };
+
 }
 
   return (
