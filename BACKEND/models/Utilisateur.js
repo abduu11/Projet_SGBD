@@ -9,12 +9,10 @@ const Utilisateur = {
 
       db.query(query, [ email, numero, hashedPassword ], (err, result) => {
           if (err) {
-              console.log(err);
               return callback(err,  { message : "Vous ne figurer pas dans notre base de donnees" });
           }
           db.query("SELECT @user_id AS id", (err, result) => {
               if (err) {
-                  console.log(err)
                   return callback(err, null);
               }
               const insertId = result[0].id;
@@ -24,18 +22,21 @@ const Utilisateur = {
     },
 
     findByEmail: ( email, callback ) => {
-        const query = "SELECT * FROM Utilisateur WHERE email = ?";
+
+        const query = "CALL authentificationVerif(?, @id, @prenom, @nom, @role, @mot_de_passe)";
+
         db.query(query, [email], (err, result) => {
             if (err) {
-                console.log(err);
-                return callback(err, { message: "Utilisateur introuvable "});
-            } else if (result.length > 0) {
-                return callback(null, {message: "L'email est deja associer a un compte"});
-            } else {
-                return callback(null, result);
+                return callback(err);
             }
+            db.query("SELECT @id AS user_id, @prenom AS prenom, @nom AS nom, @role AS role, @mot_de_passe AS mot_de_passe", (err, result) => {
+                if (err) {
+                    return callback(err, null);
+                }
+                return callback(null, result);
+            });
         });
+
     },
 }
-
 module.exports = Utilisateur;

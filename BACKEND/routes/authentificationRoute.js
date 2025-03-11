@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authentificationController = require('../controllers/authentificationController');
+const authentificationMiddleware = require('../middlewares/authentificationMiddleware');
 
 //Route pour l'inscription
 
@@ -19,10 +20,13 @@ const authentificationController = require('../controllers/authentificationContr
  *             properties:
  *               email:
  *                 type: string
- *               numero_etudiant:
+ *                 example: NomTest0@esp.sn
+ *               numero:
  *                 type: string
+ *                 example: 2025MDHG
  *               mot_de_passe:
  *                 type: string
+ *                 example: passer@2025
  *     responses:
  *       200:
  *         description: Compte créé avec succès
@@ -61,6 +65,6 @@ router.post('/inscription', authentificationController.inscription);
  *       500:
  *         description: Erreur serveur
  */
-router.post('/connexion', authentificationController.connexion);
+router.post('/connexion', authentificationMiddleware, authentificationController.connexion);
 
 module.exports = router;
