@@ -18,38 +18,33 @@ function Connexion() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if(!email || !mot_de_passe) {
-      setMessage('Veuillez remplir tous les champs svp.');
+
+    if (!email || !mot_de_passe) {
+      setMessage('Assurez vous que toutes les champs soient remplis');
       setColor('secondary');
     } else {
       try {
-        const reponse = await axios.post('http://localhost:5000/api/auth/connexion', { email, mot_de_passe, role });
-        setMessage('Connexion réussie.');
-        setColor('success');
-        
-        localStorage.setItem('token', reponse.data.token);
-        localStorage.setItem('role', role);
-        localStorage.setItem('id', reponse.data.id);
-        localStorage.setItem('prenom', reponse.data.prenom);
-        localStorage.setItem('nom', reponse.data.nom);
+        const response = await axios.post('http://localhost:5000/api/authentification/connexion', {email, mot_de_passe, role});
+        if (response.status === 200) {
+          //gestion des donnees recu du servuer
+          localStorage.setItem('id_utilisateur', response.data.id);
+          localStorage.setItem('nom', response.data.nom);
+          localStorage.setItem('prenom', response.data.prenom);
+          localStorage.setItem('token', response.data.token);
 
-        if(role === 'enseignant') {
-          setTimeout(() => {
-            navigate('/enseignant');
-          }, 2000);
+          setMessage("Connexeion reuissie, redirection en cours");
+          setColor("success");
+          console.log("Comming soon");
         } else {
-        setTimeout(() => {
-          navigate('/etudiant');
-        }, 2000);
+         setMessage(response.data.message);
+         setColor("error");
+        }
+      } catch (err) {
+        setMessage("Email, mot de passe ou role incorrecte");
+        setColor("error");
       }
-      
-      } catch (error) {
-        console.log('Erreur: ', error);
-        setMessage('Email, mot de passe ou role incorrect.');
-        setColor('error');
     }
-  };
-}
+  }
 
   return (
     <div className={styles.loginContainer}>

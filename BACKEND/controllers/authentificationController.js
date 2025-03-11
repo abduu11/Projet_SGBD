@@ -41,14 +41,23 @@ const connexion = async (req, res) => {
             return res.status(500).json({ message:"Erreur survenue lors de la verification", error: err});
         }
 
+        if (!result || result.length === 0) {
+            return res.status(401).json({ message: "Erreur survenue lors de la verification", error: err});
+        }
+
         const hashedMDP = result[0].mot_de_passe;
         const roleReceived = result[0].role;
         const id = result[0].user_id;
         const nom = result[0].nom;
         const prenom = result[0].prenom;
 
+        if (!mot_de_passe || !hashedMDP) {
+            return res.status(400).json({ message: "Erreur survenue lors de la verification mail ou mot de passe incorrecte", error: err});
+        }
+
         const verifierMDP = bcrypt.compareSync(mot_de_passe, hashedMDP);
         const verifierRole = ( role.includes(roleReceived) );
+
 
         if ( !verifierMDP || !verifierRole ) {
             return res.status(401).json({ message: "Email, Mot de passe ou role incorrect "});

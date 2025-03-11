@@ -65,6 +65,6 @@ router.post('/inscription', authentificationController.inscription);
  *       500:
  *         description: Erreur serveur
  */
-router.post('/connexion', authentificationMiddleware, authentificationController.connexion);
+router.post('/connexion', authentificationController.connexion);
 
 module.exports = router;
