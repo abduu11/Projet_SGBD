@@ -4,4 +4,4 @@
 <h2>PAGE INSCRIPTION ✍️</h2>
 <p>Le fichier FRONTEND/src/PAGES/Inscription.jsx represente la page d'inscription de tout utilisateur du site. <br>Vous pouvez voir l'illustration avec les images ci-apres</br> </p>
 <img src="FRONTEND/src/PAGES/Inscription.jpg" alt="page de connexion via ordinateur" width="80%" />
-<img src="FRONTEND/src/PAGES/Inscription1.jpg" alt="page de connexion via telephone" width="80%" />
+<img src="FRONTEND/src/PAGES/Inscription1.jpg" alt="page de connexion via telephone" width="60%" />
