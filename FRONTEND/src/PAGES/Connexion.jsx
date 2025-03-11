@@ -26,7 +26,7 @@ function Connexion() {
       try {
         const response = await axios.post('http://localhost:5000/api/authentification/connexion', {email, mot_de_passe, role});
         if (response.status === 200) {
-          //gestion des donnees recu du servuer
+          //gestion des donnees recu du serveur
           localStorage.setItem('id_utilisateur', response.data.id);
           localStorage.setItem('nom', response.data.nom);
           localStorage.setItem('prenom', response.data.prenom);

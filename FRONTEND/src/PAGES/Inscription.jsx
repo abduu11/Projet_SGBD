@@ -5,7 +5,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import SchoolIcon from '@mui/icons-material/School';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import styles from './Connexion.module.css'; 
+import styles from './Inscription.module.css';
 
 function Inscription() {
   const [code, setCode] = useState('');
@@ -21,11 +21,33 @@ function Inscription() {
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (email == null || mot_de_passe == null || confirmMot_de_passe == null || code == null) {
+      console.log(email, mot_de_passe, confirmMot_de_passe, mot_de_passe);
+      setMessage('Assurez vous de remplir tous les champs');
+      setColor('error');
+    } else if (mot_de_passe.length < 8) {
+      setMessage("Le mot de passe doit contenir au moins 8 caracteres");
+      setColor("error");
+    } else if ( mot_de_passe !== confirmMot_de_passe) {
+      setMessage('Les mots de passe ne sont pas identiques');
+      setColor('error');
+    }
+    else {
+    try {
+      const response = await axios.post('http://localhost:5000/api/authentification/inscription', { email, code, mot_de_passe });
+      navigate('/connexion');
+    } catch (err){
+      setMessage(err.response.data.message);
+      setColor("error");
+    }
+
+  }
     
   };
 
   return (
-    <div className={styles.loginContainer}>
+    <div className={styles.loginContainer} >
       <div className={styles.leftPanel}>
         <div className={styles.overlay}></div>
         <div className={styles.welcomeContent}>
