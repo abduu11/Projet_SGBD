@@ -6,7 +6,7 @@
   <table> 
       <tr>
         <td> <img src="assets/Inscription.jpg" alt="Page de connexion via ordinateur" width="80%" /> </td>
-        <td> <img src="assets/Inscription1.jpg" alt="Page de connexion via téléphone" width="20%" /> </td>
+        <td> <img src="assets/Inscription1.jpg" alt="Page de connexion via téléphone" width="80%" /> </td>
       </tr>
   </table>table>
 
