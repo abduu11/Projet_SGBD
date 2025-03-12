@@ -11,6 +11,16 @@
         <td><img src="assets/5.png"></td>
         <td><img src="assets/1.png"></td>
     </tr>
+    <tr>
+        <td><img src="assets/1.jpeg"></td>
+        <td><img src="assets/2.jpeg"></td>
+        <td><img src="assets/3.jpeg"></td>
+    </tr>
+    <tr>
+        <td><img src="assets/4.jpeg"></td>
+        <td><img src="assets/5.jpeg"></td>
+        <td><img src="assets/6.jpeg"></td>
+    </tr>
 </table>
 
 <h2>PAGE INSCRIPTION ✍️</h2>
