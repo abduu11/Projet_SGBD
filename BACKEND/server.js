@@ -38,6 +38,9 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 const authentificationRoute = require('./routes/authentificationRoute');
 app.use('/api/authentification', authentificationRoute);
 
+const chatRoute = require('./routes/chatRoutes');
+app.use('/api/chat', chatRoute);
+
 app.listen(PORT, () => {
     console.log(`Le serveur ecoute sur le port ${process.env.PORT}`);
 });

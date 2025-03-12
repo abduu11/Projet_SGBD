@@ -36,7 +36,6 @@ const Utilisateur = {
                 return callback(null, result);
             });
         });
-
     },
 
     updateMDP: ( email, hashedMDP, callback ) => {
@@ -50,6 +49,8 @@ const Utilisateur = {
           console.log(result);
           return callback(null, result);
       })
-    },
+    }
+
 }
+
 module.exports = Utilisateur;
