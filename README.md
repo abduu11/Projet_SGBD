@@ -23,6 +23,10 @@
     </tr>
 </table>
 
+<h2>CHATBOT POUR LES ETUDIANTS 🤖</h2>
+<img src="assets/CHATBOT.png">
+<p>Afin de pouvoir avoir des éclaircissements sur les sujets d'examen ou les corrections, les etudiant disposent d'un chatbot avec lequel ils pourront interagir pour repondre a leurs questions. Ce chatbot utilise l'intelligence artificielle deepseek_v3 via l'api de "OpenRouter". Ci-dessus une apercu de ce à quoi ressemble l'interface :</p>
+
 <h2>PAGE INSCRIPTION ✍️</h2>
 <p>Le fichier FRONTEND/src/PAGES/Inscription.jsx represente la page d'inscription de tout utilisateur du site. <br>Vous pouvez voir l'illustration avec les images ci-apres</br> </p>
   <table> 

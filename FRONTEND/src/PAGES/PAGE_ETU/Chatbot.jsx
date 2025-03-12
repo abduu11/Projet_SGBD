@@ -73,7 +73,8 @@ const Chatbot = () => {
         <Card
             title="Chatbot"
             style={{
-                height: '100%',
+                borderRadius: 20,
+                height: '84vh',
                 display: 'flex',
                 flexDirection: 'column',
                 overflow: 'hidden',
