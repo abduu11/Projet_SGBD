@@ -66,5 +66,7 @@ router.post('/inscription', authentificationController.inscription);
  *         description: Erreur serveur
  */
 router.post('/connexion', authentificationController.connexion);
+router.post('/reinitialisation', authentificationController.reinitialisationMDP);
+router.put('/mise-a-jour-mdp', authentificationController.misajourMDP);
 
 module.exports = router;

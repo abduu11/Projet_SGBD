@@ -1,6 +1,7 @@
 const Utilisateur = require('../models/Utilisateur');
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const axios = require("axios");
 
 const inscription = (req, res) => {
 
@@ -58,4 +59,47 @@ const connexion = async (req, res) => {
     });
 };
 
-module.exports = { inscription, connexion };
+const reinitialisationMDP = (req, res) => {
+
+    const { email } = req.body;
+
+    try {
+        Utilisateur.findByEmail(email, (err, result) => {
+            if (err) {
+                console.log(err);
+                return res.status(500).json({message: "Erreur au niveau du serveur", error: err});
+            }
+            if (!result || result.length === 0 || result[0].user_id == null) {
+                return res.status(500).json({message: "Utilisateur introuvable"});
+            }
+            return res.status(200).json({message: "OK RAS"});
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({message: "Erreur interne"});
+    }
+
+};
+
+const misajourMDP = async (req, res) => {
+
+    const { email, newPassword } = req.body;
+
+    try {
+        const hashedMDP = bcrypt.hashSync(newPassword, 10);
+
+        Utilisateur.updateMDP(email, hashedMDP, (err, result) => {
+            if (err) {
+                console.log(err);
+                return res.status(500).json({message: "Erreur au niveau du serveur", error: err});
+            }
+            return res.status(200).json({message: "Mot de passe mis a jour avec succes"});
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({message: "Erreur interne"});
+    }
+
+};
+
+module.exports = { inscription, connexion, reinitialisationMDP, misajourMDP };

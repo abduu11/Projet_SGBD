@@ -115,6 +115,7 @@ function Connexion() {
               <button
                 type="button"
                 className={styles.forgotPasswordLink}
+                onClick={() => navigate('/recuperation')}
               >
                 <HelpCircle />
                 Mot de passe oublié ?

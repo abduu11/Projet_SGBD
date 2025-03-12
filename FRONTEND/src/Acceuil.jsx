@@ -95,7 +95,7 @@ const steps = [
 const footerLinks = {
     produit: [
         { name: "Fonctionnalités", href: "#" },
-        { name: "Démo", href: "#" },
+        { name: "Démo", href: "#demo" },
         { name: "Guide d'utilisation", href: "#" }
 
 
@@ -273,6 +273,7 @@ function Hero() {
                 py: { xs: 8, md: 12 },
                 position: 'relative',
                 overflow: 'hidden',
+                height: '100vh',
             }}
         >
             <Container maxWidth="lg">
@@ -318,7 +319,7 @@ function Acceuil() {
 
             <Hero />
 
-            <Container maxWidth="lg" >
+            <Container maxWidth="lg" id="fonctionnalites">
                 <Box sx={{ py: { xs: 6, md: 8 } }}>
                     <Typography variant="h3" component="h2" textAlign="center" sx={{ mb: { xs: 4, md: 6 } }}>
                         Nos Fonctionnalités
