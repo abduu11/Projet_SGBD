@@ -1,6 +1,18 @@
-<h1>DOCUMENTATION</h1>
-<h2>BASE DE DONNEES 🚀</h2>
-<p>Le fichier db_schema.sql contient le script SQL permettant de créer la base de données et ses tables. <br> Vous pouvez regarder l'image "GestionExamens.png" pour une visualisation de la BD et "PROCEDURES_STOCKEES.png" pour avoir une appercu des procedures deja implementees au niveau de la bd</p>
+<h2>DEMO</h2>
+<h2>LANDING PAGE</h2>
+<table>
+    <tr>
+        <td><img src="assets/1.png"></td>
+        <td><img src="assets/2.png"></td>
+        <td><img src="assets/3.png"></td>
+    </tr>
+    <tr>
+        <td><img src="assets/4.png"></td>
+        <td><img src="assets/5.png"></td>
+        <td><img src="assets/1.png"></td>
+    </tr>
+</table>
+
 <h2>PAGE INSCRIPTION ✍️</h2>
 <p>Le fichier FRONTEND/src/PAGES/Inscription.jsx represente la page d'inscription de tout utilisateur du site. <br>Vous pouvez voir l'illustration avec les images ci-apres</br> </p>
   <table> 
@@ -17,3 +29,6 @@
         <td> <img src="assets/Connexion1.jpg" alt="Page de connexion via téléphone" width="80%" /> </td>
       </tr>
   </table>
+<h1>DOCUMENTATION</h1>
+<h2>BASE DE DONNEES 🚀</h2>
+<p>Le fichier db_schema.sql contient le script SQL permettant de créer la base de données et ses tables. <br> Vous pouvez regarder l'image "GestionExamens.png" pour une visualisation de la BD et "PROCEDURES_STOCKEES.png" pour avoir une appercu des procedures deja implementees au niveau de la bd</p>
