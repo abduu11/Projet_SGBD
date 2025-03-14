@@ -1,46 +1,53 @@
-# Pour specifier la version de node de notre projet
-FROM node:18
+# 🚀 Backend (Node.js)
+FROM node:18 AS backend
 
-# Pour definir le repertoire de travail
+# Définir le dossier de travail
 WORKDIR /app
 
-# Copier les fichiers nécessaires
-COPY ./BACKEND/package.json ./BACKEND/package-lock.json ./BACKEND/./
+# Copier uniquement les fichiers package.json et package-lock.json
+COPY BACKEND/package.json BACKEND/package-lock.json ./
 
-# Installer les dependances
-RUN npm install
+# Installer les dépendances
+RUN npm install --production
 
-# Permet de copier les fichiers les fichier dans notre repertoire de travail
-COPY . .
+# Copier le reste du code
+COPY BACKEND/. .
 
-# Exposer le port sur lequel l'application ecoute
+# Exposer le port sur lequel l'application écoute
 EXPOSE 5000
 
-# Lancer l'application
+# Lancer le backend
 CMD ["npm", "start"]
 
 
 
-
-
+# 🚀 Frontend (React ou autre)
 FROM node:18 AS build
 
-WORKDIR /front
+# Définir le dossier de travail
+WORKDIR /app
 
-COPY ./FRONTEND/package.json ./FRONTEND/package-lock.json ./FRONTEND/./
+# Copier uniquement les fichiers package.json et package-lock.json
+COPY FRONTEND/package.json FRONTEND/package-lock.json ./
+
+# Installer les dépendances
 RUN npm install
 
-COPY . .
+# Copier le reste du code
+COPY FRONTEND/. .
 
+# Construire le frontend
 RUN npm run build
 
-FROM nginx:alpine
 
-COPY --from=build /front/dist /usr/share/nginx/html
+# 🚀 Utiliser Nginx pour servir le frontend
+FROM nginx:alpine AS frontend
 
+# Copier le build du frontend dans le serveur Nginx
+COPY --from=build /app/build /usr/share/nginx/html
+
+# Exposer le port 80
 EXPOSE 80
 
-# Lancer l'application
+# Lancer le serveur Nginx
 CMD ["nginx", "-g", "daemon off;"]
-
-
