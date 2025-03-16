@@ -35,6 +35,7 @@ function Connexion() {
           setMessage("Connexeion reuissie, redirection en cours");
           setColor("success");
           console.log("Comming soon");
+          navigate("/dashboard");
         } else {
          setMessage(response.data.message);
          setColor("error");

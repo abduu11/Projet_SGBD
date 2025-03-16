@@ -4,7 +4,7 @@ services:
   backend:
     build: ./BACKEND
     ports:
-      - "5001:5000"
+      - "5001:5001"
     environment:
       - NODE_ENV=production
     env_file:

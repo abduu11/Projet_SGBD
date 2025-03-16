@@ -6,6 +6,10 @@ import Connexion from "./PAGES/Connexion.jsx";
 import Inscription from "./PAGES/Inscription.jsx";
 import Recuperation from "./PAGES/Recuperation.jsx";
 import Update from "./PAGES/Update.jsx";
+import Chatbot from './PAGES/PAGE_ETU/Chatbot.jsx';
+import Dashboard from './PAGES/PAGE_ETU/Dashboard.jsx';
+
+
 
 function App() {
   return (
@@ -18,7 +22,9 @@ function App() {
                     <Route path="/inscription" element={<Inscription />} />
                     <Route path="/recuperation" element={<Recuperation />} />
                     <Route path="/mis-a-jour" element={<Update />}/>
-                </Routes>
+                    <Route path="/chatBot" element={<Chatbot/>}/>
+                    <Route path="/dashboard" element={<Dashboard/>}/>
+               </Routes>
             </Router>
     </>
   )
