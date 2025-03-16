@@ -13,7 +13,7 @@ db.connect((err) => {
     if (err) {
         console.log("Erreur survenue lers de la connexion a la base de donnees", err);
     } else {
-        console.log("Connexion a la base de donnees reuissie");
+        console.log("Connexion a la base de donnees reussie");
     }
 });
 

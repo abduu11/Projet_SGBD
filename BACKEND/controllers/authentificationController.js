@@ -6,6 +6,11 @@ const axios = require("axios");
 const inscription = (req, res) => {
 
     const { email, code, mot_de_passe } = req.body;
+
+    if (!email || !code || !mot_de_passe) {
+        return res.status(400).json({ message: "Haha je vois vous voulez que mon app crash bien tenter mais je suis Aizen sossuke cela faisait partie de mon plan Yokosso watashi no soul society 🗡️🥋🗡️"});
+    }
+
     Utilisateur.create(email, code, mot_de_passe, (err, result) => {
 
         if (err) {
@@ -26,6 +31,10 @@ const inscription = (req, res) => {
 const connexion = async (req, res) => {
 
     const { email, mot_de_passe, role } = req.body;
+
+    if (!email || !mot_de_passe || !role) {
+        return res.status(400).json({ message: "Email, Mot de passe ou role manquant: Haha je vois vous voulez que mon app crash bien tenter mais je suis Aizen sossuke cela faisait partie de mon plan depuis le debut Yokosso watashi no soul society 🗡️🥋🗡️ "});
+    }
 
     Utilisateur.findByEmail(email, (err, result) => {
 
@@ -63,6 +72,10 @@ const reinitialisationMDP = (req, res) => {
 
     const { email } = req.body;
 
+    if (!email) {
+        return res.status(400).json({message: "Email requis: Haha je vois vous voulez que mon app crash bien tenter mais je suis Aizen sossuke cela faisait partie de mon plan Yokosso watashi no soul society 🗡️🥋🗡️"});
+    }
+
     try {
         Utilisateur.findByEmail(email, (err, result) => {
             if (err) {
@@ -84,6 +97,10 @@ const reinitialisationMDP = (req, res) => {
 const misajourMDP = async (req, res) => {
 
     const { email, newPassword } = req.body;
+
+    if (!email || !newPassword) {
+        return res.status(400).json({message: "Email et nouveau mot de passe requis: Haha je vois vous voulez que mon app crash bien tenter mais je suis Aizen sossuke cela faisait partie de mon plan Yokosso watashi no soul society 🗡️🥋🗡️"});  
+    }
 
     try {
         const hashedMDP = bcrypt.hashSync(newPassword, 10);
