@@ -5,6 +5,7 @@ import { Line, Pie } from '@ant-design/plots';
 import "antd/dist/reset.css";
 import Chatbot from "./Chatbot.jsx";
 import LogoutIcon from "@mui/icons-material/Logout";
+import { useNavigate } from 'react-router-dom'; // Importez useNavigate
 
 const { Header, Content, Sider } = Layout;
 const { Title, Text } = Typography;
@@ -53,6 +54,18 @@ const Dashboard = () => {
     const [collapsed, setCollapsed] = useState(false);
     const [selectedMenu, setSelectedMenu] = useState('1');
     const [selectedExam, setSelectedExam] = useState(null);
+    const navigate = useNavigate(); // Initialisez useNavigate
+
+    const handleLogout = () => {
+        // Supprimer les informations de l'utilisateur du localStorage
+        localStorage.removeItem("token");
+        localStorage.removeItem("prenom");
+        localStorage.removeItem("nom");
+        localStorage.removeItem("role");
+
+        // Rediriger vers la page de connexion
+        navigate("/connexion");
+    };
 
     const renderContent = () => {
         switch (selectedMenu) {
@@ -170,7 +183,7 @@ const Dashboard = () => {
                             <Button
                                 icon={<LogoutIcon />}
                                 style={{ marginLeft: 10, backgroundColor: '#1976d2', color: '#fff' }}
-                                onClick={() => {}}
+                                onClick={handleLogout} // Ajoutez la fonction handleLogout ici
                             >
                                 Déconnexion
                             </Button>
