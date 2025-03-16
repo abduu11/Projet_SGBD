@@ -20,7 +20,7 @@ const getChatResponse = async ( message ) => {
     });
         return response.data.choices[0].message.content;
     } catch (err) {
-        console.error("❌ Erreur OpenRouter :", err.response ? err.response.data : err.message);
+        console.error("Erreur OpenRouter :", err.response ? err.response.data : err.message);
         throw new Error("Erreur lors de la communication avec OpenRouter.");
     }
 };

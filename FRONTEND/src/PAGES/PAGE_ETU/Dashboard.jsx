@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { Layout, Menu, Card, Typography, Row, Col, Statistic, Badge, Button, Table, Select } from 'antd';
-import { BookOutlined, BarChartOutlined, FileDoneOutlined, MessageOutlined, SettingOutlined, BellOutlined, MenuUnfoldOutlined, MenuFoldOutlined, UploadOutlined } from '@ant-design/icons';
+import { BarChartOutlined, BellOutlined, BookOutlined, FileDoneOutlined, MenuFoldOutlined, MenuUnfoldOutlined, MessageOutlined, SettingOutlined, UploadOutlined } from '@ant-design/icons';
 import { Line, Pie } from '@ant-design/plots';
-import "antd/dist/reset.css";
-import Chatbot from "./Chatbot.jsx";
 import LogoutIcon from "@mui/icons-material/Logout";
+import { Badge, Button, Card, Col, Layout, Menu, Row, Select, Statistic, Switch, Table, Typography } from 'antd';
+import "antd/dist/reset.css";
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Chatbot from "./Chatbot.jsx";
 
 const { Header, Content, Sider } = Layout;
 const { Title, Text } = Typography;
@@ -53,6 +54,12 @@ const Dashboard = () => {
     const [collapsed, setCollapsed] = useState(false);
     const [selectedMenu, setSelectedMenu] = useState('1');
     const [selectedExam, setSelectedExam] = useState(null);
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        localStorage.clear();
+        navigate("/connexion");
+    };
 
     const renderContent = () => {
         switch (selectedMenu) {
@@ -143,11 +150,20 @@ const Dashboard = () => {
 
     return (
         <Layout style={{ minHeight: '100vh', background: '#1976d2', color: '#fff' }}>
-            <Sider collapsible collapsed={collapsed} onCollapse={setCollapsed} breakpoint="lg" collapsedWidth="80" style={{ background: '#1976d2' }}>
-                <div style={{ textAlign: 'center', padding: 20, fontSize: 18, color: '#fff' }}>
-                    {!collapsed ? 'Dashboard' : 'D'}
+            <Sider collapsible collapsed={collapsed} onCollapse={setCollapsed} theme="light" style={{background: '#1976d2', color: 'white'}} trigger={
+                <div
+                    style={{
+                        background: '#1976d2',
+                        color: '#fff',
+                        textAlign: 'center',
+                        padding: '100vh 0',
+                        cursor: 'pointer',
+                    }}
+                >
                 </div>
-                <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']} onClick={(e) => setSelectedMenu(e.key)} style={{ background: '#1976d2' }}>
+            }>
+                {!collapsed && (<div style={{ textAlign: 'center', padding: 20, color: '#fff', fontSize: 18, background: '#1976d2'}}>Dashboard</div>)}
+                <Menu  style={{ background: '#1976d2', color: '#fff' }} theme="dark" mode="inline" defaultSelectedKeys={['1']} onClick={(e) => setSelectedMenu(e.key)}>
                     <Menu.Item key="1" icon={<BookOutlined />}>Mes Soumissions</Menu.Item>
                     <Menu.Item key="7" icon={<BookOutlined />}>Mes Examens</Menu.Item>
                     <Menu.Item key="3" icon={<BarChartOutlined />}>Statistiques</Menu.Item>
@@ -156,31 +172,30 @@ const Dashboard = () => {
                     <Menu.Item key="6" icon={<SettingOutlined />}>Paramètres</Menu.Item>
                 </Menu>
             </Sider>
-            <Layout>
-                <Header style={{ padding: 0, background: '#fff' }}>
-                    <Row justify="space-between" align="middle" style={{ padding: '0 20px' }}>
-                        <Col>
-                            <Button type="text" icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />} onClick={() => setCollapsed(!collapsed)} />
-                        </Col>
-                        <Col>
-                            <Title level={4} style={{ margin: 0 }}>Bienvenue, {localStorage.getItem("prenom")} {localStorage.getItem("nom")}</Title>
-                        </Col>
-                        <Col>
-                            <Badge count={5}><BellOutlined style={{ fontSize: 18 }} /></Badge>
-                            <Button
-                                icon={<LogoutIcon />}
-                                style={{ marginLeft: 10, backgroundColor: '#1976d2', color: '#fff' }}
-                                onClick={() => {}}
-                            >
-                                Déconnexion
-                            </Button>
-                        </Col>
-                    </Row>
-                </Header>
-                <Content style={{ margin: '24px 16px 0', overflow: 'initial' }}>
-                    <div style={{ padding: 24, background: '#f0f2f5', minHeight: 'calc(100vh - 112px)' }}>
-                        {renderContent()}
+            <Layout style={{ background: '#1976d2'}}>
+                <Header style={{ background: '#fff', padding: '0 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Button type="text" icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />} onClick={() => setCollapsed(!collapsed)} />
+                    <Title level={4} style={{ margin: 0 }}>Bienvenue, {localStorage.getItem("prenom") + " " + localStorage.getItem("nom")}</Title>
+                    <div>
+                        <Badge count={5} style={{marginRight: 30}}><BellOutlined style={{ fontSize: 18, marginRight: 30 }} /></Badge>
+                        <Button
+                            onClick={handleLogout}
+                            variant="contained"
+                            startIcon={<LogoutIcon />}
+                            style={{ backgroundColor: '#1976d2', color: 'white', fontSize: 16} }
+                            sx={{
+                                marginLeft: 10,
+                                backgroundColor: "#1976d2",
+                                color: "#1976D2",
+                                "&:hover": { backgroundColor: "#1976d5"},
+                            }}
+                        >
+                            Déconnexion
+                        </Button>
                     </div>
+                </Header>
+                <Content style={{ padding: 20, background: '#f0f2f5', minHeight: 'calc(100vh - 64px)', overflowY: 'auto' }}>
+                    {renderContent()}
                 </Content>
             </Layout>
         </Layout>

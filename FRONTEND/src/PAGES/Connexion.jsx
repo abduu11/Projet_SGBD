@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { CircleUserRound, Lock, HelpCircle } from 'lucide-react';
-import { ToggleButtonGroup, ToggleButton } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
 import SchoolIcon from '@mui/icons-material/School';
-import { useNavigate } from 'react-router-dom';
-import styles from './Connexion.module.css';
-import { Alert } from '@mui/material';
+import { Alert, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import axios from 'axios';
+import { CircleUserRound, HelpCircle, Lock } from 'lucide-react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import styles from './Connexion.module.css';
 
 function Connexion() {
   const [email, setEmail] = useState('');
@@ -15,6 +15,7 @@ function Connexion() {
   const [message, setMessage] = useState(''); 
   const [color, setColor] = useState('');
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -32,9 +33,8 @@ function Connexion() {
           localStorage.setItem('prenom', response.data.prenom);
           localStorage.setItem('token', response.data.token);
 
-          setMessage("Connexeion reuissie, redirection en cours");
-          setColor("success");
-          console.log("Comming soon");
+          login(response.data.token);
+
           navigate("/dashboard");
         } else {
          setMessage(response.data.message);
