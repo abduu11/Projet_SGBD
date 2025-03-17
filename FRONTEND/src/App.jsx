@@ -8,6 +8,10 @@ import Inscription from "./PAGES/Inscription.jsx";
 import Dashboard from './PAGES/PAGE_ETU/Dashboard.jsx';
 import Recuperation from "./PAGES/Recuperation.jsx";
 import Update from "./PAGES/Update.jsx";
+import ExamList from './PAGES/PAGE_ETU/ExamList.jsx';
+import Stats from './PAGES/PAGE_ETU/Stats.jsx';
+import Notes from './PAGES/PAGE_ETU/Notes.jsx';
+import Param from './PAGES/PAGE_ETU/Param.jsx';
 
 function App() {
   return (
@@ -21,7 +25,11 @@ function App() {
           <Route path="/recuperation" element={<Recuperation />} />
           <Route path="/mis-a-jour" element={<Update />} />
           <Route element={<ProtectedRoute />}>
-            <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/examlist" element={<ExamList />} />
+          <Route path="/stats" element={<Stats />} />
+          <Route path="/notes" element={<Notes />} />
+          <Route path="/param" element={<Param />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           </Route>
         </Routes>
       </Router>
