@@ -12,6 +12,7 @@ import ExamList from './PAGES/PAGE_ETU/ExamList.jsx';
 import Stats from './PAGES/PAGE_ETU/Stats.jsx';
 import Notes from './PAGES/PAGE_ETU/Notes.jsx';
 import Param from './PAGES/PAGE_ETU/Param.jsx';
+import MesExams from './PAGES/PAGE_ETU/MesExams.jsx';
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
           <Route path="/stats" element={<Stats />} />
           <Route path="/notes" element={<Notes />} />
           <Route path="/param" element={<Param />} />
+          <Route path="/mesExams" element={<MesExams />} />
           <Route path="/dashboard" element={<Dashboard />} />
           </Route>
         </Routes>

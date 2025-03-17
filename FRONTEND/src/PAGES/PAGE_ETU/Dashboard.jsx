@@ -10,6 +10,7 @@ import ExamList from './ExamList.jsx';
 import Stats from './Stats.jsx';
 import Notes from './Notes.jsx';
 import Param from './Param.jsx';
+import MesExams from './MesExams.jsx';
 
 const { Header, Content, Sider } = Layout;
 const { Title, Text } = Typography;
@@ -42,7 +43,7 @@ const Dashboard = () => {
             case '6':
                 return (<Param />);
             default:
-                return <Card title="Section en développement">Contenu à venir...</Card>;
+                return (<MesExams />);
         }
     };
 
