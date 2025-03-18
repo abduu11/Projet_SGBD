@@ -8,7 +8,6 @@ import Inscription from "./PAGES/Inscription.jsx";
 import Dashboard from './PAGES/PAGE_ETU/Dashboard.jsx';
 import Recuperation from "./PAGES/Recuperation.jsx";
 import Update from "./PAGES/Update.jsx";
-import DashboardEns from "./PAGES/PAGE__ENSEIGN/DashboardEns.jsx";
 
 function App() {
   return (
@@ -23,7 +22,6 @@ function App() {
           <Route path="/mis-a-jour" element={<Update />} />
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/dashboard-ens" element={<DashboardEns />} />
           </Route>
         </Routes>
       </Router>

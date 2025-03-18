@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: projetsgbd-frontend-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: projetsgbd-frontend
+  template:
+    metadata:
+      labels:
+        app: projetsgbd-frontend
+    spec:
+      containers:
+        - name: projetsgbd-frontend
+          image: projetsgbdregistry.azurecr.io/projetsgbd-frontend:latest
+          ports:
+            - containerPort: 80

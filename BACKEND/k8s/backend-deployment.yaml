@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: projetsgbd-backend-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: projetsgbd-backend
+  template:
+    metadata:
+      labels:
+        app: projetsgbd-backend
+    spec:
+      containers:
+        - name: projetsgbd-backend
+          image: projetsgbdregistry2.azurecr.io/projetsgbd-backend:latest
+          ports:
+            - containerPort: 5000
+          envFrom:
+            - secretRef:
+                name: backend-env
+      imagePullSecrets:
+        - name: projetsgbd-registry-secret
