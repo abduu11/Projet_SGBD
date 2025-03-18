@@ -32,6 +32,7 @@ function Connexion() {
           localStorage.setItem('nom', response.data.nom);
           localStorage.setItem('prenom', response.data.prenom);
           localStorage.setItem('token', response.data.token);
+          localStorage.setItem('role', response.data.role);
 
           login(response.data.token);
 

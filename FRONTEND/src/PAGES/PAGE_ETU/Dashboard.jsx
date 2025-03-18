@@ -14,8 +14,7 @@ import MesExams from './MesExams.jsx';
 const { Header, Content, Sider } = Layout;
 const { Title } = Typography;
 
-// Définir les couleurs
-const BLUE_COLOR = '#1976d2'; // Couleur principale (bleu)
+    const BLUE_COLOR = '#1976d2'; // Couleur principale (bleu)
 const WHITE_COLOR = '#fff'; // Blanc
 const LIGHT_GRAY_COLOR = '#f0f2f5'; // Gris clair
 
@@ -90,9 +89,7 @@ const Dashboard = () => {
                 </Menu>
             </Sider>
 
-            {/* Layout principal */}
             <Layout style={{ background: BLUE_COLOR }}>
-                {/* Header */}
                 <Header style={{ background: WHITE_COLOR, padding: '0 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Button
                         type="text"
@@ -110,14 +107,13 @@ const Dashboard = () => {
                         <Button
                             onClick={handleLogout}
                             icon={<LogoutIcon />}
-                            style={{ backgroundColor: BLUE_COLOR, color: WHITE_COLOR, fontSize: 16 }}
+                            style={{ backgroundColor: BLUE_COLOR, color: WHITE_COLOR, fontSize: 16, padding: '20px' }}
                         >
                             Déconnexion
                         </Button>
                     </div>
                 </Header>
 
-                {/* Content */}
                 <Content style={{ padding: 20, background: LIGHT_GRAY_COLOR, minHeight: 'calc(100vh - 64px)', overflowY: 'auto' }}>
                     {renderContent()}
                 </Content>

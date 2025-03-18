@@ -20,10 +20,10 @@ const DashboardEns = () => {
 
   const menuItems = [
     { key: 'create-exam', title: 'Créer un Examen', icon: <GraduationCap /> },
-    { key: 'submissions', title: 'Copies Soumises', icon: <FileText /> },
+    { key: 'submissions', title: 'Examens Soumis', icon: <FileText /> },
     { key: 'corrections', title: 'Corrections', icon: <CheckSquare /> },
     { key: 'stats', title: 'Statistiques', icon: <BarChart3 /> },
-    { key: 'exams', title: 'Examens Soumis', icon: <BookOpen /> },
+    { key: 'exams', title: 'Copies Soumises', icon: <BookOpen /> },
   ];
 
   const renderContent = () => {
@@ -87,7 +87,7 @@ const DashboardEns = () => {
         <Content style={{ padding: 20, background: '#f0f2f5', minHeight: 'calc(100vh - 64px)', overflowY: 'auto'}}>
           <Card>
             <Title level={4} style={{ textAlign: 'center' }}>📚 Plateforme de Gestion des Examens</Title>
-            <p>Simplifiez la création, la correction et l'analyse des examens avec un système intelligent et sécurisé.</p>
+            <p align='center'>Simplifiez la création, la correction et l'analyse des examens avec un système intelligent et sécurisé.</p>
           </Card>
           <div style={{ marginTop: 20 }}>
             {renderContent()}

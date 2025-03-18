@@ -1,9 +1,9 @@
-import { Card, Layout, Typography, Row, Col, Statistic, Space } from 'antd';
+import { CheckCircleOutlined, InfoCircleOutlined, LineChartOutlined, RiseOutlined } from '@ant-design/icons';
+import { Card, Col, Layout, Row, Statistic, Typography } from 'antd';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend, PieChart, Pie, Cell } from 'recharts';
-import { RiseOutlined, LineChartOutlined, CheckCircleOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import { Bar, BarChart, CartesianGrid, Cell, Legend, Pie, PieChart, Tooltip, XAxis, YAxis } from 'recharts';
 
 const { Title, Text } = Typography;
 const { Content } = Layout;

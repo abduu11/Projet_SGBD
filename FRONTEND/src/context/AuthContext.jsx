@@ -1,9 +1,7 @@
 import React, { createContext, useContext, useState } from 'react';
 
-// Création du contexte
 const AuthContext = createContext();
 
-// Hook personnalisé pour utiliser l'authentification
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
