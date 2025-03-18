@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CircleUserRound, Lock, HelpCircle, Mail } from 'lucide-react';
+import { CircleUserRound, Lock, Mail } from 'lucide-react';
 import { ToggleButtonGroup, ToggleButton, Alert } from '@mui/material';
 import PersonIcon from '@mui/icons-material/Person';
 import SchoolIcon from '@mui/icons-material/School';
@@ -16,38 +16,39 @@ function Inscription() {
   const [message, setMessage] = useState('');
   const [color, setColor] = useState('');
 
-  const displayCode = (role == 'etudiant') ? 'Numero etudiant' : 'Code ensignant';
+  const displayCode = role === 'etudiant' ? 'Numero etudiant' : 'Code enseignant';
 
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (email == null || mot_de_passe == null || confirmMot_de_passe == null || code == null) {
-      console.log(email, mot_de_passe, confirmMot_de_passe, mot_de_passe);
-      setMessage('Assurez vous de remplir tous les champs');
+    if (!email || !mot_de_passe || !confirmMot_de_passe || !code) {
+      setMessage('Assurez-vous de remplir tous les champs');
       setColor('error');
     } else if (mot_de_passe.length < 8) {
-      setMessage("Le mot de passe doit contenir au moins 8 caracteres");
-      setColor("error");
-    } else if ( mot_de_passe !== confirmMot_de_passe) {
+      setMessage('Le mot de passe doit contenir au moins 8 caractères');
+      setColor('error');
+    } else if (mot_de_passe !== confirmMot_de_passe) {
       setMessage('Les mots de passe ne sont pas identiques');
       setColor('error');
+    } else {
+      try {
+        const response = await axios.post('http://localhost:5000/api/authentification/inscription', {
+          email,
+          code,
+          mot_de_passe,
+          role,
+        });
+        navigate('/connexion');
+      } catch (err) {
+        setMessage(err.response?.data?.message || 'Une erreur est survenue');
+        setColor('error');
+      }
     }
-    else {
-    try {
-      const response = await axios.post('http://localhost:5000/api/authentification/inscription', { email, code, mot_de_passe });
-      navigate('/connexion');
-    } catch (err){
-      setMessage(err.response.data.message);
-      setColor("error");
-    }
-
-  }
-    
   };
 
   return (
-    <div className={styles.loginContainer} >
+    <div className={styles.loginContainer}>
       <div className={styles.leftPanel}>
         <div className={styles.overlay}></div>
         <div className={styles.welcomeContent}>
@@ -63,101 +64,98 @@ function Inscription() {
           <form onSubmit={handleSubmit}>
             {message && <Alert severity={color} sx={{ mb: 2 }}>{message}</Alert>}
             <ToggleButtonGroup
-                className={styles.toggleButtonContainer}
-                style={{ maxWidth: '500px' }}
-                value={role}
-                exclusive
-                onChange={(event, newRole) => setRole(newRole)}
-                fullWidth
-                sx={{ width: "100%", mb: 2 }}
+              className={styles.toggleButtonContainer}
+              value={role}
+              exclusive
+              onChange={(event, newRole) => setRole(newRole)}
+              fullWidth
+              sx={{ mb: 1 }}
             >
-              <ToggleButton value="etudiant" sx={{ px: 4 }}>
-                <PersonIcon sx={{ mr: 1 }} />
+              <ToggleButton value="etudiant" sx={{ px: 3 }}>
+                <PersonIcon sx={{ mr: 0.5 }} />
                 Étudiant
               </ToggleButton>
-              <ToggleButton value="enseignant" sx={{ px: 4 }}>
-                <SchoolIcon sx={{ mr: 1 }} />
+              <ToggleButton value="enseignant" sx={{ px: 3 }}>
+                <SchoolIcon sx={{ mr: 0.5 }} />
                 Enseignant
               </ToggleButton>
             </ToggleButtonGroup>
-            
+
             <div className={styles.formGroup}>
-              <label htmlFor="username">Email</label>
+              <label htmlFor="email">Email</label>
               <div className={styles.inputContainer}>
                 <div className={styles.inputIcon}>
                   <Mail />
                 </div>
                 <input
-                  type="text"
-                  id="username"
+                  type="email"
+                  id="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </div>
             </div>
+
             <div className={styles.formGroup}>
-              <label htmlFor="username">{displayCode}</label>
+              <label htmlFor="code">{displayCode}</label>
               <div className={styles.inputContainer}>
                 <div className={styles.inputIcon}>
                   <CircleUserRound />
                 </div>
                 <input
                   type="text"
-                  id="username"
+                  id="code"
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
                   required
                 />
               </div>
             </div>
+
             <div className={styles.formGroup}>
-              <label htmlFor="password">Mot de passe</label>
+              <label htmlFor="mot_de_passe">Mot de passe</label>
               <div className={styles.inputContainer}>
                 <div className={styles.inputIcon}>
                   <Lock />
                 </div>
                 <input
                   type="password"
-                  id="password"
+                  id="mot_de_passe"
                   value={mot_de_passe}
                   onChange={(e) => setMot_de_passe(e.target.value)}
                   required
                 />
               </div>
             </div>
+
             <div className={styles.formGroup}>
-              <label htmlFor="password">Confirmer mot de passe</label>
+              <label htmlFor="confirmMot_de_passe">Confirmer mot de passe</label>
               <div className={styles.inputContainer}>
                 <div className={styles.inputIcon}>
                   <Lock />
                 </div>
                 <input
                   type="password"
-                  id="password"
+                  id="confirmMot_de_passe"
                   value={confirmMot_de_passe}
                   onChange={(e) => setConfirmMot_de_passe(e.target.value)}
                   required
                 />
               </div>
             </div>
-            <div className={styles.forgotPassword}>
-              <button
-                type="button"
-                className={styles.forgotPasswordLink}
-              >
-              </button>
-            </div>
+
             <div className={styles.submitContainer}>
-              <button
-                type="submit"
-                className={styles.loginButton}
-              >
+              <button type="submit" className={styles.loginButton}>
                 S'inscrire
               </button>
             </div>
+
             <div className={styles.signupLink}>
-              <p className={styles.txt}>Vous avez déjà un compte ? <span onClick={() => setTimeout(() => navigate('/connexion'), 1000)}>Se connecter</span></p>
+              <p className={styles.txt}>
+                Vous avez déjà un compte ?{' '}
+                <span onClick={() => navigate('/connexion')}>Se connecter</span>
+              </p>
             </div>
           </form>
         </div>

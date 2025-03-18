@@ -1,16 +1,18 @@
-import { Grid, Card, CardContent, Typography, Box, Button, Container, Avatar, Rating, IconButton, useTheme, useMediaQuery } from '@mui/material';
-import {motion} from 'framer-motion';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import BarChartIcon from '@mui/icons-material/BarChart';
-import TimelineIcon from '@mui/icons-material/Timeline';
 import SecurityIcon from '@mui/icons-material/Security';
 import SupportIcon from '@mui/icons-material/Support';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import Navigation from './Navigation';
+import TimelineIcon from '@mui/icons-material/Timeline';
+import { Box, Button, Card, CardContent, Container, Grid, IconButton, Rating, Typography, useMediaQuery, useTheme } from '@mui/material';
+import { motion } from 'framer-motion';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import logo from './assets/SUNU-SCHOOLAI.png';
+import Navigation from './Navigation';
 
 const features = [
 
@@ -263,6 +265,8 @@ function Hero() {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
+    const navigate = useNavigate();
+
     return (
 
 
@@ -287,8 +291,8 @@ function Hero() {
                                 La révolution de l'évaluation scolaire par l'intelligence artificielle
                             </Typography>
                             <Box sx={{ display: 'flex', gap: 2, justifyContent: { xs: 'center', md: 'flex-start' } }}>
-                                <Button variant="contained" color="secondary" size="large">
-                                    Commencer maintenant
+                                <Button variant="contained" color="secondary" size="large" onClick={() => navigate('/connexion')}>
+                                    Acceder a votre compte
                                 </Button>
                                 <Button variant="outlined" color="inherit" size="large">
                                     Voir la démo
@@ -311,6 +315,9 @@ function Hero() {
 }
 
 function Acceuil() {
+
+    const navigate = useNavigate();
+
     return (
         <>
             <Navigation />
@@ -334,7 +341,7 @@ function Acceuil() {
                 </Box>
 
                 <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: 'background.paper', borderRadius: 4, mb: { xs: 6, md: 8 } }}>
-                    <Typography variant="h3" component="h2" textAlign="center" sx={{ mb: { xs: 4, md: 6 } }}>
+                    <Typography variant="h3" component="h2" textAlign="center" sx={{ mb: { xs: 4, md: 6 } }} id = "cmmc">
                         Comment ça marche
                     </Typography>
                     <Grid container spacing={4} justifyContent="center">
@@ -379,13 +386,17 @@ function Acceuil() {
                         <Typography variant="h6" sx={{ mb: 4, opacity: 0.9 }}>
                             Rejoignez les milliers d'établissements qui font confiance à SUNU SCHOOL AI
                         </Typography>
-                        <Button variant="contained" color="secondary" size="large">
-                            Commencer gratuitement
+                        <Button variant="contained" color="secondary" size="large" onClick={() => navigate('/inscription')}>
+                            Commencer des maintenant
                         </Button>
                     </Card>
                 </Box>
             </Container>
-            <Footer />
+            <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 , borderRadius: 10}}>
+                <img src={logo} alt="SUNU SCHOOL AI" style={{ maxWidth: '200px', height: 'auto', borderRadius: 10 }} />
+            </Box> 
+            <h3 align='center'>"Gagner plus de temps"</h3>           
+        <Footer />
         </Box>
         </>
     );

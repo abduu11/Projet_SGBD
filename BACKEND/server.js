@@ -12,6 +12,7 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const PORT = process.env.PORT;
 
@@ -40,6 +41,9 @@ app.use('/api/authentification', authentificationRoute);
 
 const chatRoute = require('./routes/chatRoutes');
 app.use('/api/chat', chatRoute);
+
+const examensRoute = require('./routes/examensRoutes');
+app.use('/api', examensRoute);
 
 app.listen(PORT, () => {
     console.log(`Le serveur ecoute sur le port ${process.env.PORT}`);

@@ -1,7 +1,6 @@
 const Utilisateur = require('../models/Utilisateur');
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
-const axios = require("axios");
 
 const inscription = (req, res) => {
 

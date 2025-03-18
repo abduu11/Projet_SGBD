@@ -35,12 +35,15 @@ function Connexion() {
 
           login(response.data.token);
 
-          navigate("/dashboard");
-        } else {
-         setMessage(response.data.message);
-         setColor("error");
-        }
-      } catch (err) {
+          if (role === 'etudiant') {
+            navigate("/dashboard");
+          }
+          
+          if (role === 'enseignant') {
+            navigate("/dashboard-ens");
+          }
+      }
+    } catch (err) {
         setMessage("Email, mot de passe ou role incorrecte");
         setColor("error");
       }

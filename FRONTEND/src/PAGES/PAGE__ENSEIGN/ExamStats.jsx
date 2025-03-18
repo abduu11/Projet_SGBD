@@ -1,70 +1,118 @@
-import React, { useState } from 'react';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell, Legend } from 'recharts';
-import { Link } from 'react-router-dom';  // Importation de Link
-import './ExamStats.css';
+import { Card, Layout, Typography, Row, Col, Statistic, Space } from 'antd';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, Legend, PieChart, Pie, Cell } from 'recharts';
+import { RiseOutlined, LineChartOutlined, CheckCircleOutlined, InfoCircleOutlined } from '@ant-design/icons';
+
+const { Title, Text } = Typography;
+const { Content } = Layout;
+
+const COLORS = ['#00C49F', '#FF4848'];
 
 const ExamStats = () => {
-  // Simuler des données de notes récupérées depuis une API
-  const [grades, setGrades] = useState([10, 14, 8, 16, 19, 12, 9, 15, 17, 20, 5, 13, 18]);
+  const [stats, setStats] = useState({
+    moyenne: 0,
+    ecartType: 0,
+    tauxReussite: 0,
+    idExamen: '',
+    nomExamen: '',
+  });
 
-  // Calcul de la moyenne
-  const average = (grades.reduce((a, b) => a + b, 0) / grades.length).toFixed(2);
+  useEffect(() => {
+    axios.get('/api/exam-stats')
+      .then((response) => setStats(response.data))
+      .catch((error) => console.error('Erreur lors de la récupération des statistiques:', error));
+  }, []);
 
-  // Générer des données pour l'histogramme
-  const histogramData = [
-    { range: '0-5', count: grades.filter(g => g <= 5).length },
-    { range: '6-10', count: grades.filter(g => g > 5 && g <= 10).length },
-    { range: '11-15', count: grades.filter(g => g > 10 && g <= 15).length },
-    { range: '16-20', count: grades.filter(g => g > 15).length },
-  ];
-
-  // Répartition des performances
   const performanceData = [
-    { name: 'Excellents (16-20)', value: grades.filter(g => g >= 16).length },
-    { name: 'Moyens (10-15)', value: grades.filter(g => g >= 10 && g < 16).length },
-    { name: 'Faibles (0-9)', value: grades.filter(g => g < 10).length },
+    { name: 'Réussite', value: stats.tauxReussite },
+    { name: 'Échec', value: 100 - stats.tauxReussite },
   ];
-
-  const COLORS = ['#00C49F', '#FFBB28', '#FF4848'];
 
   return (
-    <div className="exam-stats-container">
-      <h1>📊 Statistiques de l'Examen</h1>
-      <p>Moyenne des notes : <strong>{average}/20</strong></p>
+    <Content style={{ padding: '0px', background: '#f0f2f5', minHeight: '100vh', display: 'flex', justifyContent: 'center' }}>
+      <Card style={{ width: '100%', maxWidth: '1200px', borderRadius: '10px' }}>
+        <Title level={3} style={{ textAlign: 'center' }}>📊 Statistiques de l'Examen</Title>
+        
+        <Row gutter={[16, 16]}>
+          <Col span={8}>
+            <Card hoverable>
+              <Statistic title="Moyenne des notes" value={stats.moyenne} suffix="/20" prefix={<RiseOutlined />} precision={2} />
+            </Card>
+          </Col>
+          <Col span={8}>
+            <Card hoverable>
+              <Statistic title="Écart-type" value={stats.ecartType} prefix={<LineChartOutlined />} precision={2} />
+            </Card>
+          </Col>
+          <Col span={8}>
+            <Card hoverable>
+              <Statistic title="Taux de réussite" value={stats.tauxReussite} suffix="%" prefix={<CheckCircleOutlined />} precision={2} />
+            </Card>
+          </Col>
+        </Row>
 
-      {/* Histogramme des notes */}
-      <div className="chart-container">
-        <h2>📈 Distribution des Notes</h2>
-        <BarChart width={500} height={300} data={histogramData}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="range" />
-          <YAxis />
-          <Tooltip />
-          <Bar dataKey="count" fill="#007bff" />
-        </BarChart>
-      </div>
+        <Row gutter={[16, 16]} justify="center" style={{ marginTop: '20px' }}>
+          <Col xs={24} md={12}>
+            <Card hoverable>
+              <Title level={5}>📈 Distribution des Notes</Title>
+              <BarChart width={400} height={300} data={performanceData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="value" fill="#007bff" />
+              </BarChart>
+            </Card>
+          </Col>
+          <Col xs={24} md={12}>
+            <Card hoverable>
+              <Title level={5}>📝 Répartition des Performances</Title>
+              <PieChart width={400} height={300}>
+                <Pie data={performanceData} dataKey="value" cx="50%" cy="50%" outerRadius={100} label>
+                  {performanceData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </Card>
+          </Col>
+        </Row>
 
-      {/* Diagramme en Camembert des performances */}
-      <div className="chart-container">
-        <h2>📝 Répartition des Performances</h2>
-        <PieChart width={400} height={300}>
-          <Pie data={performanceData} dataKey="value" cx="50%" cy="50%" outerRadius={100} label>
-            {performanceData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS[index]} />
-            ))}
-          </Pie>
-          <Tooltip />
-          <Legend />
-        </PieChart>
-      </div>
+        <Title level={4} style={{ textAlign: 'center', marginTop: '20px', marginBottom: '20px' }}>ℹ️ Explication des statistiques</Title>
 
-      {/* Lien de retour à la page d'accueil */}
-      <div className="back-to-home">
-        <Link to="/" className="back-link">
-          ⇐ Retour à l'accueil
-        </Link>
-      </div>
-    </div>
+        <Card hoverable style={{ marginBottom: '20px', textAlign: 'center', borderLeft: '5px solid #1976d2', borderRight: '5px solid #1976d2' }}>
+          <Title level={5}><InfoCircleOutlined /> Moyenne</Title>
+          <Text>La moyenne est la somme des notes divisée par le nombre d'étudiants. Elle permet d'évaluer la performance globale des étudiants.</Text>
+              {<br/>}
+          <Text>-</Text>
+        </Card>
+
+        <Card hoverable style={{ marginBottom: '20px', textAlign: 'center', borderLeft: '5px solid #1976d2', borderRight: '5px solid #1976d2' }}>
+          <Title level={5}><InfoCircleOutlined /> Écart-type</Title>
+          <Text>L'écart-type mesure la dispersion des notes par rapport à la moyenne. Un écart-type élevé signifie une grande variation des notes.</Text>
+          {<br/>}
+          <Text>-</Text>
+        </Card>
+
+        <Card hoverable style={{ marginBottom: '20px', textAlign: 'center', borderLeft: '5px solid #1976d2', borderRight: '5px solid #1976d2' }}>
+          <Title level={5}><InfoCircleOutlined /> Taux de réussite</Title>
+          <Text>Le taux de réussite représente le pourcentage d'étudiants ayant obtenu une note supérieure ou égale à la note de passage.</Text>
+          {<br/>}
+          <Text>-</Text>
+        </Card>
+
+        <div style={{ textAlign: 'center', marginTop: '20px' }}>
+          <Link to="/" style={{ fontSize: '16px', textDecoration: 'none', color: '#1890ff' }}>
+            ⇐ Retour à l'accueil
+          </Link>
+        </div>
+      </Card>
+    </Content>
   );
 };
 
