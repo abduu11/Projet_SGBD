@@ -1,9 +1,10 @@
 const db = require("../configs/db");
 
 const Examen = {
-    getAllExams: (callback) => {
-        const query = "SELECT * FROM Examen ORDER BY date_creation DESC";
-        db.query(query, (err, result) => {
+
+    getAllExams: (id_enseignant, callback) => {
+        const query = "SELECT * FROM Examen WHERE id_enseignant = ? ORDER BY date_creation DESC";
+        db.query(query, [id_enseignant], (err, result) => {
             if (err) {
                 return callback(err, null);
             }
@@ -22,23 +23,27 @@ const Examen = {
     },
 
     createExam: async (titre, description, id_enseignant, fichier_pdf, callback) => {
-        
-        const query = `
-        INSERT INTO Examen (titre, description, id_enseignant, fichier_pdf)
-        VALUES (?, ?, ?, ?)
-        `;
-
+        const query = `INSERT INTO Examen (titre, description, id_enseignant, fichier_pdf) VALUES (?, ?, ?, ?)`;
         const values = [titre, description, id_enseignant, fichier_pdf];
 
         db.query(query, values, (err, results) => {
         if (err) {
-            console.error("Erreur lors de la création de l'examen", err);
             return callback(err, null);
         }
-        console.log("Examen créé avec succès", results);
         return callback(null, results);
     });
-    }
+    },
+
+    getExamsByStudent: (id_etudiant, callback) => {
+        const query = `SELECT Examen.* FROM Examen WHERE Examen.id_enseignant IN ( SELECT Enseignant.id_enseignant FROM Etudiant JOIN Utilisateur ON Etudiant.id_utilisateur = Utilisateur.id_utilisateur JOIN Enseignant ON Utilisateur.id_utilisateur = Enseignant.id_utilisateur WHERE Etudiant.id_etudiant = ? )`;
+        db.query(query, [id_etudiant], (err, result) => {
+            if (err) {
+                return callback(err, null);
+            }
+            return callback(null, result);
+        });
+    },
+
 };
 
 module.exports = Examen;

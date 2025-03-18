@@ -8,6 +8,11 @@ const sendMessage = async (req, res) => {
         return res.status(400).json({ error: 'message requis' });
     }
 
+
+    if (!message) {
+        return res.status(400).json({ error: 'message requis' });
+    }
+
     try {
         const chatResponse = await getChatResponse(message);
         res.status(200).json(chatResponse);

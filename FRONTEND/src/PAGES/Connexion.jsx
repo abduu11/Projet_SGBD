@@ -32,15 +32,17 @@ function Connexion() {
           localStorage.setItem('nom', response.data.nom);
           localStorage.setItem('prenom', response.data.prenom);
           localStorage.setItem('token', response.data.token);
-          localStorage.setItem('role', response.data.role);
+          
 
           login(response.data.token);
 
           if (role === 'etudiant') {
+            localStorage.setItem('role', 'etudiant');
             navigate("/dashboard");
           }
           
           if (role === 'enseignant') {
+            localStorage.setItem('role', 'enseignant');
             navigate("/dashboard-ens");
           }
       }

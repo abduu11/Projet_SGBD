@@ -4,10 +4,40 @@ const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
 
+
 const getAllExamens = (req, res) => {
-    exam.getAllExams((err, result) => {
+    const id_enseignant = req.params.id;
+    exam.getAllExams(id_enseignant, (err, result) => {
         if (err) {
             return res.status(500).json({ message: "Erreur lors de la récupération des examens", error: err });
+        }
+        return res.status(200).json(result);
+    });
+};
+
+const getEnseignants = (req, res) => {
+    const query = `SELECT * FROM Utilisateur WHERE role = 'enseignant'`;
+    db.query(query, (err, result) => {
+        if (err) {
+            return res.status(500).json({ message: "Erreur lors de la récupération des enseignants", error: err });
+        }
+        return res.status(200).json(result);
+    });
+};
+
+const getExamsForStudent = (req, res) => {
+    const id_etudiant = req.params.id;
+    const id_enseignant = req.query.id_enseignant;
+
+    const query = `
+        SELECT Examen.*
+        FROM Examen
+        WHERE Examen.id_enseignant = ?
+        ORDER BY Examen.date_creation DESC
+    `;
+    db.query(query, [id_enseignant], (err, result) => {
+        if (err) {
+            return res.status(500).json({ message: 'Erreur lors de la récupération des examens', error: err });
         }
         return res.status(200).json(result);
     });
@@ -85,4 +115,4 @@ const deleteExamen = (req, res) => {
 };
 
 
-module.exports = { createExamen, deleteExamen , getAllExamens };
+module.exports = { createExamen, deleteExamen , getAllExamens, getExamsForStudent, getEnseignants };

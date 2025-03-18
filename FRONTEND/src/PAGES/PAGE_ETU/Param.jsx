@@ -68,8 +68,6 @@ const Param = () => {
                     <Switch
                         checked={notificationsEnabled}
                         onChange={(checked) => setNotificationsEnabled(checked)}
-                        checkedChildren="Activé"
-                        unCheckedChildren="Désactivé"
                     />
                 </div>
             </Card>

@@ -1,85 +1,93 @@
-import React from 'react';
-import { Table, Button } from 'antd';
 import { DownloadOutlined } from '@ant-design/icons';
+import { Button, Select, Table } from 'antd';
+import React, { useEffect, useState } from 'react';
 
-// Données statiques des examens
-const examData = [
-    {
-        key: '1',
-        nom: 'Examen de Mathématiques',
-        date: '2023-10-15',
-        durée: '2 heures',
-        fichier: 'maths_exam.pdf',
-    },
-    {
-        key: '2',
-        nom: 'Examen de Physique',
-        date: '2023-10-20',
-        durée: '1 heure 30 minutes',
-        fichier: 'physics_exam.pdf',
-    },
-    {
-        key: '3',
-        nom: 'Examen d\'Informatique',
-        date: '2023-10-25',
-        durée: '2 heures',
-        fichier: 'computer_science_exam.pdf',
-    },
-    {
-        key: '4',
-        nom: 'Examen de Chimie',
-        date: '2023-10-30',
-        durée: '1 heure',
-        fichier: 'chemistry_exam.pdf',
-    },
-];
-
-// Colonnes du tableau
-const columns = [
-    {
-        title: 'Nom de l\'examen',
-        dataIndex: 'nom',
-        key: 'nom',
-    },
-    {
-        title: 'Date',
-        dataIndex: 'date',
-        key: 'date',
-    },
-    {
-        title: 'Durée',
-        dataIndex: 'durée',
-        key: 'durée',
-    },
-    {
-        title: 'Télécharger',
-        key: 'action',
-        render: (_, record) => (
-            <Button
-                type="primary"
-                icon={<DownloadOutlined />}
-                onClick={() => handleDownload(record.fichier)}
-            >
-                Télécharger
-            </Button>
-        ),
-    },
-];
-
-// Fonction pour gérer le téléchargement (simulé pour l'instant)
-const handleDownload = (filename) => {
-    alert(`Téléchargement du fichier : ${filename}`);
-    // Ici, vous pouvez ajouter la logique pour télécharger le fichier
-};
+const { Option } = Select;
 
 const MesExams = () => {
+    const [exams, setExams] = useState([]);
+    const [enseignants, setEnseignants] = useState([]);
+    const [selectedProfessor, setSelectedProfessor] = useState(null);
+
+    useEffect(() => {
+        fetch('http://localhost:5000/api/enseignants')
+            .then(response => response.json())
+            .then(data => setEnseignants(data))
+            .catch(error => console.error('Erreur lors du chargement des enseignants:', error));
+    }, []);
+
+    useEffect(() => {
+        if (selectedProfessor) {
+            fetch(`http://localhost:5000/api/examens/etudiant/${localStorage.getItem('id_utilisateur')}?id_enseignant=${selectedProfessor}`)
+                .then(response => response.json())
+                .then(data => setExams(data))
+                .catch(error => console.error('Erreur lors du chargement des examens:', error));
+        }
+    }, [selectedProfessor]);
+
+    const handleDownload = (filename) => {
+        const url = `http://localhost:5000/uploads/${filename}`;
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        link.target = "_blank";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    const handleProfessorChange = (value) => {
+        setSelectedProfessor(value);
+    };
+
+    const columns = [
+        {
+            title: 'Nom de l\'examen',
+            dataIndex: 'titre',
+            key: 'titre',
+        },
+        {
+            title: 'Date de création',
+            dataIndex: 'date_creation',
+            key: 'date_creation',
+        },
+        {
+            title: 'Télécharger',
+            key: 'action',
+            render: (_, record) => (
+                <Button
+                    type="primary"
+                    icon={<DownloadOutlined />}
+                    onClick={() => handleDownload(record.fichier_pdf)}
+                >
+                    Télécharger
+                </Button>
+            ),
+        },
+    ];
+
     return (
-        <Table
-            columns={columns}
-            dataSource={examData}
-            pagination={false}
-            scroll={{ x: true }}
-        />
+        <div>
+            <h2>Mes Examens</h2>
+            <Select
+                style={{ width: 200, marginBottom: 20 }}
+                placeholder="Choisir un professeur"
+                onChange={handleProfessorChange}
+            >
+                {enseignants.map(enseignant => (
+                    <Option key={enseignant.id} value={enseignant.id}>
+                        {enseignant.nom} {enseignant.prenom}
+                    </Option>
+                ))}
+            </Select>
+
+            <Table
+                columns={columns}
+                dataSource={exams}
+                pagination={false}
+                rowKey="id"
+            />
+        </div>
     );
 };
 

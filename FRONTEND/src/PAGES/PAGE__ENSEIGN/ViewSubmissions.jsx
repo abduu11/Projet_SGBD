@@ -20,7 +20,7 @@ import React, { useEffect, useState } from 'react';
  
    const fetchExams = async () => {
      try {
-       const response = await fetch('http://localhost:5000/api/examens');
+       const response = await fetch(`http://localhost:5000/api/examens/${localStorage.getItem('id_utilisateur')}`);
  
        if (!response.ok) {
          throw new Error(`Erreur ${response.status}: ${response.statusText}`);
@@ -91,8 +91,8 @@ import React, { useEffect, useState } from 'react';
    return (
      <Content style={{ padding: '0px', background: '#f0f2f5', minHeight: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
        <Card style={{ width: '100%', maxWidth: '1200px' }}>
-         <Title level={4} style={{ textAlign: 'center' }}>Voir les Examens Soumis</Title>
-         <p>Liste des examens soumis par les étudiants.</p>
+         <Title level={4} style={{ textAlign: 'center' }}>Voir les Examens Crees</Title>
+         <p align='center'>Liste des epreuves crees.</p>
          <Table columns={columns} dataSource={submittedExams} pagination={false} rowKey="id" />
          <div style={{ textAlign: 'center', marginTop: '20px' }}>
            <Link to="/" style={{ fontSize: '16px', textDecoration: 'none', color: '#1890ff' }}>
