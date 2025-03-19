@@ -39,16 +39,16 @@ const Utilisateur = {
     },
 
     updateMDP: ( email, hashedMDP, callback ) => {
-      const query = "UPDATE Utilisateur SET mot_de_passe = ? WHERE email = ?";
+    const query = "UPDATE Utilisateur SET mot_de_passe = ? WHERE email = ?";
 
-      db.query(query, [hashedMDP, email], (err, result) => {
-          if (err) {
-              console.log(err)
-              return callback(err);
-          }
-          console.log(result);
-          return callback(null, result);
-      })
+    db.query(query, [hashedMDP, email], (err, result) => {
+        if (err) {
+            console.log(err)
+            return callback(err);
+        }
+        console.log(result);
+        return callback(null, result);
+    })
     }
 
 }

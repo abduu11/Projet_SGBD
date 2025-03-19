@@ -1,13 +1,23 @@
-import { DownloadOutlined } from '@ant-design/icons';
-import { Button, Select, Table } from 'antd';
+import { DeleteOutlined, EditOutlined, EyeOutlined, UploadOutlined } from '@ant-design/icons';
+import { Button, Input, message, Modal, Select, Table } from 'antd';
+import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 
 const { Option } = Select;
+const { TextArea } = Input;
 
 const MesExams = () => {
     const [exams, setExams] = useState([]);
     const [enseignants, setEnseignants] = useState([]);
     const [selectedProfessor, setSelectedProfessor] = useState(null);
+    const [selectedExam, setSelectedExam] = useState(null);
+    const [soumission, setSoumission] = useState(null);
+    const [commentaire, setCommentaire] = useState('');
+    const [isCommentModalVisible, setIsCommentModalVisible] = useState(false);
+    const [isSubmissionModalVisible, setIsSubmissionModalVisible] = useState(false);
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+
 
     useEffect(() => {
         fetch('http://localhost:5000/api/enseignants')
@@ -25,6 +35,59 @@ const MesExams = () => {
         }
     }, [selectedProfessor]);
 
+    const handleSubmitCopie = () => {
+        const formData = new FormData();
+        formData.append('fichier_pdf', selectedFile);
+        formData.append('id_etudiant', localStorage.getItem('id_utilisateur'));
+        formData.append('id_examen', selectedExam.id);
+        formData.append('commentaire', commentaire);
+
+        axios.post('http://localhost:5000/api/soumission', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        })
+        .then(response => {
+            message.success('Examen soumis avec succès');
+            setSoumission(response.data);
+            setIsSubmissionModalVisible(false);
+        })
+        .catch(error => {
+            console.error('Erreur lors de la soumission:', error);
+            message.error('Erreur lors de la soumission');
+        });
+        setIsSubmissionModalVisible(false);
+    };
+
+    const handleComment = () => {
+        axios.post('http://localhost:5000/api/commentaire', { id_etudiant: localStorage.getItem('id_utilisateur'), id_examen: selectedExam.id, commentaire })
+            .then(response => {
+                message.success('Commentaire ajouté avec succès');
+            })
+            .catch(error => console.error('Erreur lors de l\'ajout du commentaire:', error));
+            setIsCommentModalVisible(false);
+    };
+
+    const handleDeleteExam = (id) => {
+        const id_etudiant = parseInt(localStorage.getItem('id_utilisateur'));
+        const id_examen = parseInt(id);
+
+        console.log(id);
+        console.log(id_etudiant);
+
+        if (!id_etudiant || !id_examen) {
+            message.error('Veuillez sélectionner un examen');
+            return;
+        }
+
+        axios.post('http://localhost:5000/api/suppression-copie', { id_etudiant, id_examen })
+            .then(response => {
+                message.success('Examen supprimé avec succès');
+            })
+            .catch(error => console.error('Erreur lors de la suppression de l\'examen:', error));
+            setIsDeleteModalVisible(false);
+    };
+
     const handleDownload = (filename) => {
         const url = `http://localhost:5000/uploads/${filename}`;
         const link = document.createElement('a');
@@ -40,28 +103,154 @@ const MesExams = () => {
         setSelectedProfessor(value);
     };
 
+    const handleExamSelect = (exam) => {
+        setSelectedExam(exam);
+        fetch(`http://localhost:5000/api/soumission/${localStorage.getItem('id_utilisateur')}/${exam.id}`)
+            .then(response => response.json())
+            .then(data => {
+                setSoumission(data);
+                setCommentaire(data?.commentaire || '');
+            })
+            .catch(error => console.error('Erreur lors de la récupération de la soumission:', error));
+    };
+
+    const handleSubmit = () => {
+        if (!selectedFile) {
+            message.error("Veuillez sélectionner un fichier avant de soumettre.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('fichier_pdf', selectedFile);
+        formData.append('id_etudiant', localStorage.getItem('id_utilisateur'));
+        formData.append('id_examen', selectedExam.id);
+        formData.append('commentaire', commentaire);
+
+        axios.post('http://localhost:5000/api/soumission', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        })
+        .then(response => {
+            message.success('Examen soumis avec succès');
+            setSoumission(response.data);
+            setIsSubmissionModalVisible(false);
+        })
+        .catch(error => {
+            console.error('Erreur lors de la soumission:', error);
+            message.error('Erreur lors de la soumission');
+        });
+    };
+
+    const handleCancelSubmission = () => {
+        axios.delete(`http://localhost:5000/api/soumission/${soumission.id}`)
+            .then(response => {
+                message.success('Soumission annulée avec succès');
+                setSoumission(null);
+            })
+            .catch(error => {
+                console.error('Erreur lors de l\'annulation:', error);
+                message.error('Erreur lors de l\'annulation');
+            });
+    };
+
+    const handleUpdateComment = () => {
+        axios.put(`http://localhost:5000/api/soumission/${soumission.id}/commentaire`, { commentaire })
+            .then(response => {
+                message.success('Commentaire mis à jour avec succès');
+            })
+            .catch(error => {
+                console.error('Erreur lors de la mise à jour du commentaire:', error);
+                message.error('Erreur lors de la mise à jour du commentaire');
+            });
+    };
+
+    const showCommentModal = () => {
+        setIsCommentModalVisible(true);
+    };
+
+    const handleSubmissionCancel = () => {
+        setIsSubmissionModalVisible(false);
+        setSelectedFile(null);
+    };
+
+    const handleCommentCancel = () => {
+        setIsCommentModalVisible(false);
+    };
+
+    const showSubmissionModal = () => {
+        setIsSubmissionModalVisible(true);
+    };
+
+    const showDeleteModal = () => {
+        setIsDeleteModalVisible(true);
+    };
+
+    const handleDeleteCancel = () => {
+        setIsDeleteModalVisible(false);
+    };
+
     const columns = [
         {
-            title: 'Nom de l\'examen',
+            title: 'Titre de l\'examen',
             dataIndex: 'titre',
             key: 'titre',
+            width: 100,
         },
         {
             title: 'Date de création',
             dataIndex: 'date_creation',
             key: 'date_creation',
+            width: 160,
         },
         {
-            title: 'Télécharger',
-            key: 'action',
+            title: 'Actions',
+            key: 'actions',
+            width: 500,
             render: (_, record) => (
-                <Button
-                    type="primary"
-                    icon={<DownloadOutlined />}
-                    onClick={() => handleDownload(record.fichier_pdf)}
-                >
-                    Télécharger
-                </Button>
+                <div>
+                    <Button
+                        icon={<EyeOutlined />}
+                        onClick={() => handleDownload(record.fichier_pdf)}
+                        style={{ marginRight: 8 }}
+                    >
+                        Voir le sujet
+                    </Button>
+                    <Button
+                        type="primary"
+                        icon={<UploadOutlined />}
+                        onClick={() => {
+                            setSelectedExam(record);
+                            showSubmissionModal();
+                        }}
+                        style={{ marginRight: 8 }}
+                    >
+                        Rendre le devoir
+                    </Button>
+                    <Button
+                        type="primary"
+                        icon={<EditOutlined />}
+                        onClick={() => {
+                            setSelectedExam(record);
+                            showCommentModal();
+                        }}
+                        style={{ marginRight: 8 }}
+                    >
+                        Commentaire
+                    </Button>
+                    <Button
+    type="primary"
+    icon={<DeleteOutlined />}
+    onClick={() => {
+        setSelectedExam(record);
+        showDeleteModal();
+    }}
+    danger
+    style={{ marginRight: 8 }}
+>
+    Supprimer mon devoir
+</Button>
+                </div>
             ),
         },
     ];
@@ -70,13 +259,13 @@ const MesExams = () => {
         <div>
             <h2>Mes Examens</h2>
             <Select
-                style={{ width: 200, marginBottom: 20 }}
+                style={{ width: 300, marginBottom: 20 }}
                 placeholder="Choisir un professeur"
                 onChange={handleProfessorChange}
             >
                 {enseignants.map(enseignant => (
                     <Option key={enseignant.id} value={enseignant.id}>
-                        {enseignant.nom} {enseignant.prenom}
+                        {enseignant.prenom} {enseignant.nom}
                     </Option>
                 ))}
             </Select>
@@ -86,7 +275,50 @@ const MesExams = () => {
                 dataSource={exams}
                 pagination={false}
                 rowKey="id"
+                scroll={{ y: 420 }}
             />
+
+            <Modal
+                title={`Ajouter un commentaire pour ${selectedExam?.titre}`}
+                visible={isCommentModalVisible}
+                onOk={handleComment}
+                onCancel={handleCommentCancel}
+                okText="Envoyer"
+                cancelText="Annuler"
+            >
+                <TextArea
+                    rows={4}
+                    value={commentaire}
+                    onChange={(e) => setCommentaire(e.target.value)}
+                />
+            </Modal>
+
+            <Modal
+                title={`Soumettre un fichier pour ${selectedExam?.titre}`}
+                visible={isSubmissionModalVisible}
+                onOk={handleSubmitCopie}
+                onCancel={handleSubmissionCancel}
+                okText="Soumettre"
+                cancelText="Annuler"
+            >
+                <input
+                    type="file"
+                    accept="application/pdf"
+                    onChange={(e) => setSelectedFile(e.target.files[0])}
+                    style={{ display: 'block', marginBottom: 10 }}
+                />
+            </Modal>
+
+            <Modal
+                title="Suppression du devoir"
+                visible={isDeleteModalVisible}
+                onOk={() => handleDeleteExam(selectedExam.id)}
+                onCancel={handleDeleteCancel}
+                okText="Supprimer"
+                cancelText="Annuler"
+            >
+                <p>Voulez-vous vraiment supprimer ce devoir ?</p>
+            </Modal>
         </div>
     );
 };

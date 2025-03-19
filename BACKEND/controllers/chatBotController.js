@@ -47,11 +47,6 @@ const getPreviousChatsController = async (req, res) => {
     
     const { id_user, limit } = req.params;
 
-    console.log("id_user:", id_user, "limit:", limit);
-
-    console.log("id_user:", id_user, "limit:", limit);
-
-
     try {
         chatSave.getPreviousChats(id_user, parseInt(limit), (err, results) => {
             if (err) {

@@ -303,8 +303,8 @@ function Hero() {
                     {!isMobile && (
                         <Grid item xs={12} md={6} >
                             <Box component="img"
-                                 src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
-                                 sx={{ width: '100%', maxWidth: 600, display: 'block', mx: 'auto', borderRadius: '70% 30% 30% 70% / 60% 40% 60% 40% ' ,paddingTop: '50px' }}
+                                src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
+                                sx={{ width: '100%', maxWidth: 600, display: 'block', mx: 'auto', borderRadius: '70% 30% 30% 70% / 60% 40% 60% 40% ' ,paddingTop: '70px', marginTop: 'auto' }}
                             />
                         </Grid>
                     )}

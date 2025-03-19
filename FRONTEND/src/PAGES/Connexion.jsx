@@ -34,7 +34,7 @@ function Connexion() {
           localStorage.setItem('token', response.data.token);
           
 
-          login(response.data.token);
+          login(response.data.token, response.data.role);
 
           if (role === 'etudiant') {
             localStorage.setItem('role', 'etudiant');

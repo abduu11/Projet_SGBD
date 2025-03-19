@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
- import { Link } from 'react-router-dom';
- import { Card, Table, Typography, Layout, Button, Modal } from 'antd';
- import { useNavigate } from 'react-router-dom';
- import { EyeOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Link } from 'react-router-dom';
+import { Card, Table, Typography, Layout, Button, Modal } from 'antd';
+import { useNavigate } from 'react-router-dom';
+import { EyeOutlined, DeleteOutlined } from '@ant-design/icons';
  
  const { Content } = Layout;
  const { Title } = Typography;
@@ -53,10 +53,9 @@ import React, { useEffect, useState } from 'react';
  };
  
    const columns = [
-     { title: 'ID', dataIndex: 'id', key: 'id' },
-     { title: 'Titre de l\'examen', dataIndex: 'titre', key: 'titre' },
-     { title: 'Description', dataIndex: 'description', key: 'description' },
-     { title: 'Date de création', dataIndex: 'date_creation', key: 'date_creation' },
+     { title: 'Titre de l\'examen', dataIndex: 'titre', key: 'titre', width: 150 },
+     { title: 'Description', dataIndex: 'description', key: 'description', width: 250 },
+     { title: 'Date de création', dataIndex: 'date_creation', key: 'date_creation', width: 300 },
      {
        title: 'Actions',
        key: 'actions',
@@ -75,12 +74,14 @@ import React, { useEffect, useState } from 'react';
              >
                Voir l'épreuve
              </Button>
-           </a>
-           <Button 
-             type="danger" 
-             icon={<DeleteOutlined />} 
-             onClick={() => { setDeleteExamId(record.id); setConfirmModalVisible(true); }}
-           >
+          </a>
+          <Button 
+            type="danger" 
+            icon={<DeleteOutlined />} 
+            onClick={() => { setDeleteExamId(record.id); setConfirmModalVisible(true); }}
+            danger
+            style={{ marginRight: 8, backgroundColor: '#ff4d4f', color: 'white' }}
+          >
              Supprimer
            </Button>
          </div>
@@ -89,11 +90,11 @@ import React, { useEffect, useState } from 'react';
    ];
  
    return (
-     <Content style={{ padding: '0px', background: '#f0f2f5', minHeight: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+     <Content style={{ padding: '0px', background: '#f0f2f5', minHeight: 'calc(100vh - 64px)', display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%' }}>
        <Card style={{ width: '100%', maxWidth: '1200px' }}>
          <Title level={4} style={{ textAlign: 'center' }}>Voir les Examens Crees</Title>
          <p align='center'>Liste des epreuves crees.</p>
-         <Table columns={columns} dataSource={submittedExams} pagination={false} rowKey="id" />
+         <Table columns={columns} dataSource={submittedExams} pagination={false} rowKey="id" scroll={{ y: 320 }}/>
          <div style={{ textAlign: 'center', marginTop: '20px' }}>
            <Link to="/" style={{ fontSize: '16px', textDecoration: 'none', color: '#1890ff' }}>
              ⇐ Retour à l'accueil

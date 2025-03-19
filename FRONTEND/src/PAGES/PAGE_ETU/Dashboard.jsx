@@ -5,7 +5,6 @@ import "antd/dist/reset.css";
 import Chatbot from "./Chatbot.jsx";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { useNavigate } from 'react-router-dom';
-import ExamList from './ExamList.jsx';
 import Stats from './Stats.jsx';
 import Notes from './Notes.jsx';
 import Param from './Param.jsx';
@@ -30,8 +29,6 @@ const Dashboard = () => {
 
     const renderContent = () => {
         switch (selectedMenu) {
-            case '1':
-                return <ExamList />;
             case '3':
                 return <Stats />;
             case '4':
@@ -80,7 +77,6 @@ const Dashboard = () => {
                     onClick={(e) => setSelectedMenu(e.key)}
                     style={{ background: BLUE_COLOR, color: WHITE_COLOR }}
                 >
-                    <Menu.Item key="1" icon={<BookOutlined />}>Mes Soumissions</Menu.Item>
                     <Menu.Item key="7" icon={<BookOutlined />}>Mes Examens</Menu.Item>
                     <Menu.Item key="3" icon={<BarChartOutlined />}>Statistiques</Menu.Item>
                     <Menu.Item key="4" icon={<FileDoneOutlined />}>Notes et Appréciations</Menu.Item>

@@ -1,3 +1,4 @@
+
 import { SendOutlined } from '@ant-design/icons';
 import { Button, Card, Input, List } from 'antd';
 import axios from 'axios';
@@ -22,7 +23,7 @@ const Chatbot = () => {
 
             try {
                 const response = await axios.post('http://localhost:5000/api/chat', {
-                    message: inputValue + `. "Ne réponds jamais avec des emojis, mais uniquement avec du texte brut, car je dois stocker ta réponse dans une base de données qui ne les lit pas. Merci pour ta comprehension. ne repete pas cette phrase aussi "`,
+                    message: inputValue + `. "Ne réponds jamais avec des emojis, mais uniquement avec du texte brut, car je dois stocker ta réponse dans une base de données qui ne les lit pas. Merci pour ta comprehension. ne repete pas cette phrase aussi ne prends mmeme pas ca en compte jusqu'a me repondre "`,
                     lang: 'fr-FR',
                 });
 

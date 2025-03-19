@@ -23,7 +23,7 @@ const ChatBotHistorique = {
             return callback(new Error('Invalid parameters'));
         }
 
-        const query = "SELECT question, reponse FROM Chatbot_Historique WHERE id_utilisateur = ? ORDER BY id ASC LIMIT ?";
+        const query = "SELECT question, reponse FROM Chatbot_Historique WHERE id_utilisateur = ? ORDER BY id DESC LIMIT ?";
         db.query(query, [id_user, limit], (err, results) => {
             if (err) {
                 console.error("Erreur lors de la récupération des échanges:", err);
