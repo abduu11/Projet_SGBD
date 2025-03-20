@@ -1,67 +1,134 @@
+import { Button, Modal, Table } from 'antd';
+import axios from 'axios';
 import React, { useEffect, useState } from 'react';
- import { Link } from 'react-router-dom';
- import { Card, Table, Typography, Layout, Button, Menu } from 'antd';
- import { MenuFoldOutlined, MenuUnfoldOutlined, FileTextOutlined, BookOutlined, CheckSquareOutlined, BarChartOutlined, ReadOutlined } from '@ant-design/icons';
- import { useNavigate } from 'react-router-dom';
- import LogoutIcon from "@mui/icons-material/Logout";
- 
- const { Header, Content, Sider } = Layout;
- const { Title } = Typography;
- 
- const ViewTeacherExams = () => {
-   const [collapsed, setCollapsed] = useState(false);
-   const [teacherExams, setTeacherExams] = useState([]);
-   const navigate = useNavigate();
- 
-   useEffect(() => {
-     // Remplace cette URL par celle de ton API pour récupérer les examens soumis par le professeur
-     fetch('/api/teacher-exams')
-       .then((response) => response.json())
-       .then((data) => setTeacherExams(data))
-       .catch((error) => console.error('Erreur lors de la récupération des examens:', error));
-   }, []);
- 
-   const handleLogout = () => {
-     localStorage.clear();
-     navigate("/connexion");
-   };
- 
-   const columns = [
-     { title: 'ID', dataIndex: 'id', key: 'id' },
-     { title: 'Titre', dataIndex: 'title', key: 'title' },
-     { title: 'Matière', dataIndex: 'subject', key: 'subject' },
-     { title: 'Date de soumission', dataIndex: 'submissionDate', key: 'submissionDate' },
-     {
-       title: 'Actions',
-       key: 'actions',
-       render: (text, record) => (
-         <Link to={`/exam-student-submissions/${record.id}`} className="view-submissions-link">
-           Voir les copies des étudiants
-         </Link>
-       ),
-     },
-   ];
- 
-   return (
-     <Content style={{ 
-       padding: '0px', 
-       background: '#f0f2f5', 
-       minHeight: 'calc(100vh - 64px)', 
-       display: 'flex', 
-       flexDirection: 'column',
-       alignItems: 'center' 
-     }} >
-       <Card style={{ width: '100%', maxWidth: '1200px' }}>
-         <Title level={4} style={{ textAlign: 'center' }}>Liste des examens que vous avez créés et soumis</Title>
-         <Table columns={columns} dataSource={teacherExams} pagination={false} rowKey="id" />
-         <div style={{ textAlign: 'center', marginTop: '10px', marginBottom: '10px' }}> {/* Ajuster la marge inférieure ici */}
-           <Link to="/" style={{ fontSize: '16px', textDecoration: 'none', color: '#1890ff' }}>
-             ⇐ Retour à l'accueil
-           </Link>
-         </div>
-       </Card>
-     </Content>
-   );
- };
- 
- export default ViewTeacherExams;
+import dayjs from 'dayjs';
+
+const ExamenList = () => {
+    const [exams, setExams] = useState([]);
+    const [submissions, setSubmissions] = useState([]);
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [isCommentModalVisible, setIsCommentModalVisible] = useState(false);
+    const [selectedExamId, setSelectedExamId] = useState(null);
+    const [selectedComment, setSelectedComment] = useState("");
+    const [totalCopies, setTotalCopies] = useState(0);
+    const id_enseignant = localStorage.getItem('id_utilisateur');
+
+    useEffect(() => {
+        axios.post('http://localhost:5000/api/examens/list', { id_enseignant })
+            .then(response => setExams(response.data))
+            .catch(error => console.error("Erreur lors de la récupération des examens:", error));
+    }, [id_enseignant]);
+
+    const fetchSubmissions = (examId) => {
+        axios.post(`http://localhost:5000/api/examens/submissions`, { id_examen: examId })
+            .then(response => {
+                setSubmissions(response.data);
+                setTotalCopies(response.data.length);
+            })
+            .catch(error => console.error("Erreur lors de la récupération des soumissions:", error));
+    };
+
+    const viewSubmissions = (examId) => {
+        setSelectedExamId(examId);
+        fetchSubmissions(examId);
+        setIsModalVisible(true);
+    };
+
+    const handleModalClose = () => {
+        setIsModalVisible(false);
+        setSubmissions([]);
+        setTotalCopies(0);
+    };
+
+    const viewComment = (comment) => {
+        setSelectedComment(comment);
+        setIsCommentModalVisible(true);
+    };
+
+    const handleCommentModalClose = () => {
+        setIsCommentModalVisible(false);
+        setSelectedComment("");
+    };
+
+    const examColumns = [
+        { title: 'Titre de l\'examen', dataIndex: 'titre', key: 'titre' },
+        { title: 'Date de création', dataIndex: 'date_creation', key: 'date_creation', 
+            render: (date) => date ? dayjs(date).format('DD-MM-YYYY HH:mm') : "Non disponible"
+        },
+        {
+            title: 'Actions',
+            key: 'actions',
+            render: (_, record) => (
+                <Button type="primary" onClick={() => viewSubmissions(record.id)}>Voir les soumissions</Button>
+            ),
+        },
+    ];
+
+    const submissionColumns = [
+        {
+            title: 'Étudiant',
+            key: 'etudiant',
+            width: 300,
+            render: (_, record) => `${record.nom} ${record.prenom}`,
+        },
+        {
+            title: 'Fichier',
+            dataIndex: 'fichier_pdf',
+            key: 'fichier_pdf',
+            render: (fileName) => (
+                fileName ? (
+                    <Button type="primary">
+                        <a href={`http://localhost:5000/uploads/${fileName}`} target="_blank" rel="noopener noreferrer" style={{ color: 'white', textDecoration: 'none' }}>
+                            Voir le devoir
+                        </a>
+                    </Button>
+                ) : "Aucun fichier"
+            ),
+            width: 300,
+        },
+        {
+            title: 'Date de soumission',
+            dataIndex: 'date_soumission',
+            key: 'date_soumission',
+            width: 300,
+            render: (date) => date ? dayjs(date).format('DD-MM-YYYY HH:mm') : "Non disponible",
+        },
+        {
+            title: 'Actions',
+            key: 'actions',
+            render: (_, record) => (
+                <Button type="default" onClick={() => viewComment(record.commentaire)}>
+                    Voir commentaire
+                </Button>
+            ),
+        },
+    ];
+
+    return (
+        <div style={{ padding: 20 }}>
+            <h2>Liste des examens</h2>
+            <Table dataSource={exams} columns={examColumns} rowKey="id_examen" pagination={false} />
+
+            <Modal
+                title={`Nombre de copies : ${totalCopies}`}
+                visible={isModalVisible}
+                onCancel={handleModalClose}
+                footer={null}
+                width={1000}
+            >
+                <Table dataSource={submissions} columns={submissionColumns} rowKey="id_copie" pagination={false} />
+            </Modal>
+
+            <Modal
+                title="Commentaire"
+                visible={isCommentModalVisible}
+                onCancel={handleCommentModalClose}
+                footer={null}
+            >
+                <p>{selectedComment || "Aucun commentaire disponible"}</p>
+            </Modal>
+        </div>
+    );
+};
+
+export default ExamenList;

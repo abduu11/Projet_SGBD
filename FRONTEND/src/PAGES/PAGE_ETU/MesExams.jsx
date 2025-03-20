@@ -1,5 +1,5 @@
 import { DeleteOutlined, EditOutlined, EyeOutlined, UploadOutlined } from '@ant-design/icons';
-import { Button, Input, message, Modal, Select, Table } from 'antd';
+import { Button, Input, message, Modal, Select, Table, Alert, notification } from 'antd';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 
@@ -55,6 +55,8 @@ const MesExams = () => {
         .catch(error => {
             console.error('Erreur lors de la soumission:', error);
             message.error('Erreur lors de la soumission');
+            alert('Vous n\'avez pas de soumission pour cet examen oubien fichier non valide');
+            setIsSubmissionModalVisible(false);
         });
         setIsSubmissionModalVisible(false);
     };
@@ -63,17 +65,20 @@ const MesExams = () => {
         axios.post('http://localhost:5000/api/commentaire', { id_etudiant: localStorage.getItem('id_utilisateur'), id_examen: selectedExam.id, commentaire })
             .then(response => {
                 message.success('Commentaire ajouté avec succès');
+                setIsCommentModalVisible(false);
             })
-            .catch(error => console.error('Erreur lors de l\'ajout du commentaire:', error));
-            setIsCommentModalVisible(false);
+            .catch(error => {
+                console.error('Erreur lors de l\'ajout du commentaire:', error);
+                message.error('Erreur lors de l\'ajout du commentaire');
+                alert('Vous n\'avez pas de soumission pour cet examen');
+                setIsCommentModalVisible(false);
+
+            });
     };
 
     const handleDeleteExam = (id) => {
         const id_etudiant = parseInt(localStorage.getItem('id_utilisateur'));
         const id_examen = parseInt(id);
-
-        console.log(id);
-        console.log(id_etudiant);
 
         if (!id_etudiant || !id_examen) {
             message.error('Veuillez sélectionner un examen');
@@ -84,8 +89,12 @@ const MesExams = () => {
             .then(response => {
                 message.success('Examen supprimé avec succès');
             })
-            .catch(error => console.error('Erreur lors de la suppression de l\'examen:', error));
-            setIsDeleteModalVisible(false);
+            .catch(error => {
+                console.error('Erreur lors de la suppression de l\'examen:', error);
+                alert('Vous n\'avez pas de soumission pour cet examen');
+                message.error('Erreur lors de la suppression de l\'examen');
+                setIsDeleteModalVisible(false);
+            });
     };
 
     const handleDownload = (filename) => {
@@ -101,68 +110,6 @@ const MesExams = () => {
 
     const handleProfessorChange = (value) => {
         setSelectedProfessor(value);
-    };
-
-    const handleExamSelect = (exam) => {
-        setSelectedExam(exam);
-        fetch(`http://localhost:5000/api/soumission/${localStorage.getItem('id_utilisateur')}/${exam.id}`)
-            .then(response => response.json())
-            .then(data => {
-                setSoumission(data);
-                setCommentaire(data?.commentaire || '');
-            })
-            .catch(error => console.error('Erreur lors de la récupération de la soumission:', error));
-    };
-
-    const handleSubmit = () => {
-        if (!selectedFile) {
-            message.error("Veuillez sélectionner un fichier avant de soumettre.");
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append('fichier_pdf', selectedFile);
-        formData.append('id_etudiant', localStorage.getItem('id_utilisateur'));
-        formData.append('id_examen', selectedExam.id);
-        formData.append('commentaire', commentaire);
-
-        axios.post('http://localhost:5000/api/soumission', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
-        })
-        .then(response => {
-            message.success('Examen soumis avec succès');
-            setSoumission(response.data);
-            setIsSubmissionModalVisible(false);
-        })
-        .catch(error => {
-            console.error('Erreur lors de la soumission:', error);
-            message.error('Erreur lors de la soumission');
-        });
-    };
-
-    const handleCancelSubmission = () => {
-        axios.delete(`http://localhost:5000/api/soumission/${soumission.id}`)
-            .then(response => {
-                message.success('Soumission annulée avec succès');
-                setSoumission(null);
-            })
-            .catch(error => {
-                console.error('Erreur lors de l\'annulation:', error);
-                message.error('Erreur lors de l\'annulation');
-            });
-    };
-
-    const handleUpdateComment = () => {
-        axios.put(`http://localhost:5000/api/soumission/${soumission.id}/commentaire`, { commentaire })
-            .then(response => {
-                message.success('Commentaire mis à jour avec succès');
-            })
-            .catch(error => {
-                console.error('Erreur lors de la mise à jour du commentaire:', error);
-                message.error('Erreur lors de la mise à jour du commentaire');
-            });
     };
 
     const showCommentModal = () => {
@@ -195,7 +142,7 @@ const MesExams = () => {
             title: 'Titre de l\'examen',
             dataIndex: 'titre',
             key: 'titre',
-            width: 100,
+            width: 80,
         },
         {
             title: 'Date de création',

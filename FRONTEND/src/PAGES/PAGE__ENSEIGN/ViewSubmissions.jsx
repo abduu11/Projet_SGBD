@@ -1,8 +1,7 @@
+import { DeleteOutlined, EyeOutlined } from '@ant-design/icons';
+import { Button, Card, Layout, Modal, Table, Typography } from 'antd';
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Card, Table, Typography, Layout, Button, Modal } from 'antd';
-import { useNavigate } from 'react-router-dom';
-import { EyeOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Link, useNavigate } from 'react-router-dom';
  
  const { Content } = Layout;
  const { Title } = Typography;
@@ -53,9 +52,9 @@ import { EyeOutlined, DeleteOutlined } from '@ant-design/icons';
  };
  
    const columns = [
-     { title: 'Titre de l\'examen', dataIndex: 'titre', key: 'titre', width: 150 },
-     { title: 'Description', dataIndex: 'description', key: 'description', width: 250 },
-     { title: 'Date de création', dataIndex: 'date_creation', key: 'date_creation', width: 300 },
+     { title: 'Titre de l\'examen', dataIndex: 'titre', key: 'titre', width: 200 },
+     { title: 'Description', dataIndex: 'description', key: 'description', width: 190 },
+     { title: 'Date de création', dataIndex: 'date_creation', key: 'date_creation', width: 200 },
      {
        title: 'Actions',
        key: 'actions',
