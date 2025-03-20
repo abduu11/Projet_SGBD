@@ -44,6 +44,16 @@ const Examen = {
         });
     },
 
+    getPDFFile: (id_examen, callback) => {
+        const query = `SELECT fichier_pdf FROM Examen WHERE id = ?`;
+        db.query(query, [id_examen], (err, result) => {
+            if (err) {
+                return callback(err, null);
+            }
+            return callback(null, result);
+        });
+    }
+
 };
 
 module.exports = Examen;
