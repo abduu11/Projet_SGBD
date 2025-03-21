@@ -1,48 +1,335 @@
- import React, { useEffect, useState } from 'react';
- import { Link } from 'react-router-dom';
- import { Card, Table, Typography } from 'antd';
- 
- const { Title } = Typography;
- 
- const ViewCorrections = () => {
-   const [corrections, setCorrections] = useState([]);
- 
-   useEffect(() => {
-     fetch('/api/corrections')
-       .then((response) => response.json())
-       .then((data) => setCorrections(data))
-       .catch((error) => console.error('Erreur lors de la récupération des corrections:', error));
-   }, []);
- 
-   const columns = [
-     { title: 'ID', dataIndex: 'id', key: 'id' },
-     { title: 'ID Copie', dataIndex: 'id_copie', key: 'id_copie' },
-     { title: 'Note', dataIndex: 'note', key: 'note' },
-     { title: 'Commentaires', dataIndex: 'commentaires', key: 'commentaires' },
-     { title: 'Statut', dataIndex: 'statut', key: 'statut' },
-     { title: 'Enseignant Validateur', dataIndex: 'id_enseignant_validateur', key: 'id_enseignant_validateur' },
-     { title: 'Date Correction', dataIndex: 'date_correction', key: 'date_correction' },
-   ];
- 
-   return (
-     <div style={{ padding: '0px', 
-       background: '#f0f2f5', 
-       minHeight: 'calc(100vh - 64px)', 
-       display: 'flex', 
-       flexDirection: 'column',
-       alignItems: 'center' 
-       }}>
-       <Card style={{ width: '100%', maxWidth: '1200px' }}>
-         <Title level={4} style={{ textAlign: 'center' }}>Liste des corrections effectuées</Title>
-         <Table columns={columns} dataSource={corrections} pagination={false} rowKey="id" />
-         <div style={{ textAlign: 'center', marginTop: '10px', marginBottom: '0px' }}>
-           <Link to="/" style={{ fontSize: '16px', textDecoration: 'none', color: '#1890ff' }}>
-             ⇐ Retour à l'accueil
-           </Link>
-         </div>
-       </Card>
-     </div>
-   );
- };
- 
- export default ViewCorrections;
+import { Button, Modal, Table, Input, message } from 'antd';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import dayjs from 'dayjs';
+import { useNavigate } from 'react-router-dom';
+import { EyeOutlined, EditOutlined, RobotOutlined } from '@ant-design/icons';
+
+const { TextArea } = Input;
+
+const ViewCorrections = () => {
+  // State pour les soumissions et leur nombre
+  const [submissions, setSubmissions] = useState([]);
+  const [totalCopies, setTotalCopies] = useState(0);
+  // Flag pour savoir si une correction existe déjà
+  const [dejaCorrige, setDejaCorrige] = useState(false);
+
+  // Gestion des modales
+  const [assignModalVisible, setAssignModalVisible] = useState(false);
+  const [autoModalVisible, setAutoModalVisible] = useState(false);
+
+  const [selectedSubmission, setSelectedSubmission] = useState(null);
+  // Pour la note et le commentaire : noteIA contient la note générée par l'IA et note/commentaire sont utilisés pour la modification
+  const [note, setNote] = useState('');
+  const [commentaire, setCommentaire] = useState('');
+  const [noteIA, setNoteIA] = useState(0);
+
+  const [correctionResult, setCorrectionResult] = useState(null);
+  const [correctionEnCours, setCorrectionEnCours] = useState({});
+
+  const idExamen = localStorage.getItem('id_examen');
+  const fichier_pdf = localStorage.getItem('fichier_pdf');
+  const navigate = useNavigate();
+
+  // Récupération des soumissions grâce à l'id_examen
+  useEffect(() => {
+    if (idExamen) {
+      axios
+        .post('http://localhost:5000/api/examens/submissions', { id_examen: idExamen })
+        .then((response) => {
+          setSubmissions(response.data);
+          setTotalCopies(response.data.length);
+        })
+        .catch((error) =>
+          console.error("Erreur lors de la récupération des soumissions:", error)
+        );
+    } else {
+      message.error("Aucun ID d'examen trouvé dans localStorage");
+    }
+  }, [idExamen]);
+
+  // Fonction pour lancer l'auto-correction par l'IA
+  const handleCorrectWithAI = async (submission) => {
+    setCorrectionEnCours((prev) => ({ ...prev, [submission.id]: true }));
+    try {
+      const response = await axios.post('http://localhost:5000/api/correction', {
+        id_examen: idExamen,
+        id_copie: submission.id,
+        fichier_pdf: submission.fichier_pdf,
+      });
+      // Stockage du résultat retourné par l'API
+      setCorrectionResult(response.data.correction);
+      setNoteIA(response.data.correction.note);
+      // Mise à jour de l'état des soumissions pour refléter la proposition de l'IA
+      setSubmissions((prev) =>
+        prev.map((sub) =>
+          sub.id === submission.id
+            ? {
+                ...sub,
+                note: response.data.correction.note,
+                commentaire: response.data.correction.commentaire,
+                status: 'Correction IA proposée'
+              }
+            : sub
+        )
+      );
+      setSelectedSubmission(submission);
+      setAutoModalVisible(true);
+      message.success('Correction automatique effectuée avec succès');
+    } catch (error) {
+      console.error('Erreur lors de la correction automatique:', error);
+      message.error('Erreur lors de la correction automatique');
+      setDejaCorrige(true);
+    } finally {
+      setCorrectionEnCours((prev) => ({ ...prev, [submission.id]: false }));
+    }
+  };
+
+  // Lors du clic sur "Valider" dans la modal d'auto-correction,
+  // On vérifie si une correction existe déjà et dans ce cas on affiche une alerte.
+  const handleSaveCorrection = async () => {
+    if (dejaCorrige) {
+      message.error("Une correction existe déjà. Veuillez cliquer sur 'Modifier la note' pour la modifier.");
+      return;
+    }
+    if (selectedSubmission) {
+      try {
+        await axios.post('http://localhost:5000/api/enregistrer', {
+          id_copie: selectedSubmission.id,
+          note: noteIA, // On enregistre la note générée par l'IA
+          commentaire: correctionResult.commentaire,
+          id_enseignant_validateur: localStorage.getItem('id_utilisateur'),
+        });
+        setSubmissions((prev) =>
+          prev.map((sub) =>
+            sub.id === selectedSubmission.id
+              ? {
+                  ...sub,
+                  note: noteIA,
+                  commentaire: correctionResult.commentaire,
+                  status: 'proposé'
+                }
+              : sub
+          )
+        );
+        setAutoModalVisible(false);
+        message.success('Note attribuée avec succès');
+      } catch (error) {
+        console.error("Erreur lors de l'enregistrement de la note:", error);
+        alert('Vous avez deja une correction pour cet étudiant voir details');
+        message.error("Erreur lors de l'attribution de la note");
+      }
+    }
+  };
+
+  // Permet d'ouvrir directement la modale de modification manuelle, pré-remplie
+  const handleOpenModifyNote = (submission) => {
+    if (!submission) {
+      message.error("Soumission non sélectionnée !");
+      return;
+    }
+    setSelectedSubmission(submission);
+    setNote(submission.note || noteIA || '');
+    setCommentaire(submission.commentaire || '');
+    setAssignModalVisible(true);
+  };
+
+  // Sauvegarde la note et le commentaire modifiés (via l'endpoint modifier)
+  const handleAssignNoteEtu = async () => {
+    if (selectedSubmission) {
+      try {
+        await axios.post('http://localhost:5000/api/modifier', {
+          id_copie: selectedSubmission.id,
+          note: note, // Note manuellement modifiée
+        });
+        setSubmissions((prev) =>
+          prev.map((sub) =>
+            sub.id === selectedSubmission.id
+              ? { ...sub, note: note, commentaire: commentaire, status: 'proposé' }
+              : sub
+          )
+        );
+        setAssignModalVisible(false);
+        message.success('Note attribuée avec succès');
+      } catch (error) {
+        console.error("Erreur lors de l'attribution de la note:", error);
+        message.error("Erreur lors de l'attribution de la note");
+      }
+    }
+  };
+
+  // Annule et ferme toutes les modales
+  const handleModalCancel = () => {
+    setAssignModalVisible(false);
+    setAutoModalVisible(false);
+  };
+
+  // Affiche une modal d'information pour voir les détails de la correction générée par l'IA
+  const handleSeeDetails = (submission) => {
+    if (submission && submission.commentaire && submission.note) {
+      Modal.info({
+        title: "Détails de la Correction IA",
+        content: (
+          <div>
+            <p><strong>Note :</strong> {submission.note}/20</p>
+            <p><strong>Commentaires :</strong></p>
+            <p>{submission.commentaire}</p>
+          </div>
+        ),
+        onOk: () => {},
+      });
+    } else {
+      message.info("Aucune correction IA disponible pour cette soumission.");
+    }
+  };
+  
+
+  // Définition des colonnes du tableau
+  const submissionColumns = [
+    {
+      title: 'Étudiant',
+      key: 'etudiant',
+      render: (_, record) => `${record.nom} ${record.prenom}`,
+      width: 150,
+    },
+    {
+      title: 'Fichier',
+      dataIndex: 'fichier_pdf',
+      render: (fileName) =>
+        fileName ? (
+          <a
+            href={`http://localhost:5000/uploads/${fileName}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Voir le devoir
+          </a>
+        ) : 'Aucun fichier',
+      width: 120,
+    },
+    {
+      title: 'Date de soumission',
+      dataIndex: 'date_soumission',
+      render: (date) => dayjs(date).format('DD-MM-YYYY HH:mm'),
+      width: 180,
+    },
+    {
+      title: 'Note',
+      dataIndex: 'note',
+      render: (note) => note ? `${note}/20` : 'Non noté',
+      width: 100,
+    },
+    {
+      title: 'Statut',
+      dataIndex: 'status',
+      render: (status) => status || "Non Corrigé",
+      width: 150,
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      render: (_, record) => (
+        <div>
+          <Button
+            type="primary"
+            icon={<RobotOutlined />}
+            onClick={() => { 
+              handleCorrectWithAI(record);
+              if (dejaCorrige) {
+                alert('Une correction existe déjà. Cliquez sur "Modifier la note" pour la modifier ou "Voir Détails" pour consulter le résultat généré.');
+              }
+            }}
+            loading={correctionEnCours[record.id] || false}
+            style={{ marginBottom: 5, marginRight: 10 }}
+          >
+            Correction IA
+          </Button>
+         
+          <Button
+            type="default"
+            icon={<EditOutlined />}
+            onClick={() => handleOpenModifyNote(record)}
+            style={{ marginBottom: 5, marginRight: 10 }}
+          >
+            Modifier la note + Voir Details IA
+          </Button>
+        </div>
+      ),
+    },
+  ];
+
+  return (
+    <div style={{ padding: 20 }}>
+      <div style={{ marginBottom: 20 }}>
+        <a
+          href={`http://localhost:5000/uploads/${fichier_pdf}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ marginRight: '10px' }}
+        >
+          <Button type="default">Voir épreuve</Button>
+        </a>
+        <Button onClick={() => navigate(-1)}>Retour</Button>
+      </div>
+
+      <h2>Corrections pour l'examen</h2>
+      <p>Nombre de copies : {totalCopies}</p>
+      
+      <Table 
+        dataSource={submissions} 
+        columns={submissionColumns} 
+        rowKey="id" 
+        pagination={false} 
+      />
+
+      {/* Modal pour afficher le résultat de la correction automatique */}
+      <Modal
+        title="Résultat de la Correction Automatique"
+        visible={autoModalVisible}
+        onCancel={handleModalCancel}
+        footer={[
+          <Button key="close" onClick={() => setAutoModalVisible(false)}>
+            Fermer
+          </Button>,
+          <Button key="validate" type="primary" onClick={handleSaveCorrection}>
+            Valider
+          </Button>,
+        ]}
+      >
+        {correctionResult && (
+          <div>
+            <h3>Note proposée : {correctionResult.note}</h3>
+            <h4>Commentaires :</h4>
+            <p>{correctionResult.commentaire}</p>
+          </div>
+        )}
+      </Modal>
+
+      {/* Modal pour modification manuelle de la note */}
+      <Modal
+        title="Attribuer ou Modifier la note"
+        visible={assignModalVisible}
+        onOk={handleAssignNoteEtu}
+        onCancel={handleModalCancel}
+      >
+        <div>
+          <Input
+            type="number"
+            value={note || ''}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder="Entrez une note"
+            style={{ marginBottom: 16 }}
+          />
+          <TextArea
+            value={commentaire}
+            onChange={(e) => setCommentaire(e.target.value)}
+            placeholder="Entrez un commentaire"
+            rows={4}
+          />
+        </div>
+      </Modal>
+    </div>
+  );
+};
+
+export default ViewCorrections;

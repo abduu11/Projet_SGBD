@@ -10,6 +10,7 @@ import Recuperation from "./PAGES/Recuperation.jsx";
 import Update from "./PAGES/Update.jsx";
 import DashboardEns from "./PAGES/PAGE__ENSEIGN/DashboardEns.jsx";
 import ProtectedRouteEns from './Components/ProtectedRouteEns.jsx';
+import ViewCorrections from "./PAGES/PAGE__ENSEIGN/ViewCorrections.jsx";
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
           </Route>
           <Route element={<ProtectedRouteEns role="enseignant" />}>
             <Route path="/dashboard-ens" element={<DashboardEns />} />
+            <Route path="/view-corrections" element={<ViewCorrections />} />
           </Route>
         </Routes>
       </Router>

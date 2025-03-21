@@ -1,6 +1,7 @@
-import { DeleteOutlined, EyeOutlined } from '@ant-design/icons';
+import { CheckOutlined, DeleteOutlined, EyeOutlined } from '@ant-design/icons';
 import { Button, Card, Layout, Modal, Table, Typography } from 'antd';
 import axios from 'axios';
+import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -13,6 +14,8 @@ const ViewSubmissions = () => {
     const [deleteExamId, setDeleteExamId] = useState(null);
     const [confirmModalVisible, setConfirmModalVisible] = useState(false);
     const [generatingCorriges, setGeneratingCorriges] = useState({});
+    const [correctionModalVisible, setCorrectionModalVisible] = useState(false);
+    const [selectedExam, setSelectedExam] = useState(null);
 
     const navigate = useNavigate();
 
@@ -33,15 +36,6 @@ const ViewSubmissions = () => {
 
     useEffect(() => {
         fetchExams();
-    }, []);
-
-    useEffect(() => {
-        const generatedCorriges = JSON.parse(localStorage.getItem('generatedCorriges')) || [];
-        const updatedCorriges = {};
-        generatedCorriges.forEach(id => {
-            updatedCorriges[id] = false; // Le généré est complet, pas en cours
-        });
-        setGeneratingCorriges(updatedCorriges);
     }, []);
 
     const handleDeleteExam = async () => {
@@ -71,48 +65,55 @@ const ViewSubmissions = () => {
     };
 
     const handleGenerateCorrigeType = async (id_examen) => {
-      setGeneratingCorriges(prev => ({ ...prev, [id_examen]: true }));
-  
-      try {
-          const response = await axios.post(`http://localhost:5000/api/examens/generer-corrigeType/`, { id_examen });
-  
-          if (response.status !== 200) {
-              throw new Error(`Erreur ${response.status}: ${response.statusText}`);
-          }
-  
-          if (!response.data.filePath) {
-              throw new Error('Le chemin du corrigé type est manquant dans la réponse.');
-          }
-  
-          const generatedCorriges = JSON.parse(localStorage.getItem('generatedCorriges')) || [];
-          if (!generatedCorriges.includes(id_examen)) {
-              generatedCorriges.push(id_examen);
-              localStorage.setItem('generatedCorriges', JSON.stringify(generatedCorriges));
-          }
-  
-          setGeneratingCorriges(prev => ({ ...prev, [id_examen]: false }));
-  
-          Modal.success({
-              title: 'Corrigé Type Généré',
-              content: `Le corrigé type a été généré avec succès et est disponible ici : ${response.data.filePath}`,
-          });
-      } catch (error) {
-          console.error('Erreur lors de la génération du corrigé type:', error);
-          Modal.error({
-              title: 'Erreur',
-              content: 'Une erreur est survenue lors de la génération du corrigé type.',
-          });
-          setGeneratingCorriges(prev => ({ ...prev, [id_examen]: false }));
-      }
-  };
-  
+        setGeneratingCorriges(prev => ({ ...prev, [id_examen]: true }));
+
+        try {
+            const response = await axios.post(`http://localhost:5000/api/examens/generer-corrigeType/`, { id_examen });
+
+            if (response.status !== 200) {
+                throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+            }
+
+            const generatedCorriges = JSON.parse(localStorage.getItem('generatedCorriges')) || [];
+            if (!generatedCorriges.includes(id_examen)) {
+                generatedCorriges.push(id_examen);
+                localStorage.setItem('generatedCorriges', JSON.stringify(generatedCorriges));
+            }
+
+            setGeneratingCorriges(prev => ({ ...prev, [id_examen]: false }));
+
+            Modal.success({
+                title: 'Corrigé Type Généré',
+                content: 'Le corrigé type a été généré avec succès.',
+            });
+        } catch (error) {
+            console.error('Erreur lors de la génération du corrigé type:', error);
+            Modal.error({
+                title: 'Erreur',
+                content: 'Une erreur est survenue lors de la génération du corrigé type.',
+            });
+            setGeneratingCorriges(prev => ({ ...prev, [id_examen]: false }));
+        }
+    };
+
+    const handleViewCorrections = (exam) => {
+        localStorage.setItem('id_examen', exam.id);
+        navigate('/corrections');
+    };
 
     const columns = [
-        { title: 'Titre de l\'examen', dataIndex: 'titre', key: 'titre', width: 200 },
-        { title: 'Date de création', dataIndex: 'date_creation', key: 'date_creation', width: 200 },
+        { title: 'Titre de l\'examen', dataIndex: 'titre', key: 'titre', width: 150 },
+        {
+            title: 'Date de création',
+            dataIndex: 'date_creation',
+            key: 'date_creation',
+            width: 145,
+            render: (text) => dayjs(text).format('DD-MM-YYYY HH:mm'),
+        },
         {
             title: "Corrigé Type",
             key: "actions",
+            width: 300,
             render: (_, record) => (
                 <div>
                     <Button
@@ -129,7 +130,7 @@ const ViewSubmissions = () => {
                             style={{ marginLeft: 8 }}
                             onClick={() => window.open(`http://localhost:5000/uploads/corriges/corrige_${record.id}.pdf`, '_blank')}
                         >
-                            Voir le Corrigé
+                            Voir Corrigé
                         </Button>
                     )}
                 </div>
@@ -138,8 +139,20 @@ const ViewSubmissions = () => {
         {
             title: 'Actions',
             key: 'actions',
-            render: (text, record) => (
+            render: (_, record) => (
                 <div>
+                    <Button
+                        type="primary"
+                        icon={<CheckOutlined />}
+                        onClick={() => {
+                            localStorage.setItem('id_examen', record.id);
+                            localStorage.setItem('fichier_pdf', record.fichier_pdf);
+                            navigate(`/view-corrections`);
+                        }}
+                        style={{ marginRight: 8 }}
+                    >
+                        Correction
+                    </Button>
                     <a
                         href={`http://localhost:5000/uploads/${record.fichier_pdf}`}
                         target="_blank"
@@ -147,11 +160,11 @@ const ViewSubmissions = () => {
                         style={{ marginRight: '10px' }}
                     >
                         <Button
-                            type="primary"
+                            type="default"
                             icon={<EyeOutlined />}
                             style={{ marginRight: 8 }}
                         >
-                            Voir l'épreuve
+                            Voir épreuve
                         </Button>
                     </a>
                     <Button

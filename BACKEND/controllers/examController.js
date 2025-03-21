@@ -155,7 +155,7 @@ const generateCorrectionType = async (req, res) => {
         }
 
         const pdfDoc = await PDFDocument.create();
-        const page = pdfDoc.addPage([595, 842]);
+        let page = pdfDoc.addPage([595, 842]);
         const { width, height } = page.getSize();
         const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
         const fontSize = 12;

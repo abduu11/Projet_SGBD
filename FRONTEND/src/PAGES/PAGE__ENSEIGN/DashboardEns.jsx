@@ -21,7 +21,6 @@ const DashboardEns = () => {
   const menuItems = [
     { key: 'create-exam', title: 'Créer un Examen', icon: <GraduationCap /> },
     { key: 'submissions', title: 'Examens Soumis', icon: <FileText /> },
-    { key: 'corrections', title: 'Corrections', icon: <CheckSquare /> },
     { key: 'stats', title: 'Statistiques', icon: <BarChart3 /> },
     { key: 'exams', title: 'Copies Soumises', icon: <BookOpen /> },
   ];
@@ -32,8 +31,8 @@ const DashboardEns = () => {
         return <CreateExam />;
       case 'submissions':
         return <ViewSubmissions />;
-      case 'corrections':
-        return <ViewCorrections />;
+      //case 'corrections':
+        //return <ViewCorrections />;
       case 'stats':
         return <ExamStats />;
       case 'exams':

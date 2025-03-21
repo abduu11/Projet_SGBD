@@ -25,6 +25,9 @@ app.use('/api', examensRoute);
 const copieRoute = require('./routes/copieRoutes');
 app.use('/api', copieRoute);
 
+const correctionRoute = require('./routes/correctionRoutes');
+app.use('/api', correctionRoute);
+
 app.get('/', (req, res)=>{
     res.send("Bienvenu");
 } );
