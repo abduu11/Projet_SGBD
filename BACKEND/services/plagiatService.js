@@ -125,12 +125,7 @@ async function lirePDF(chemin) {
 }
 
 function analyserCopiesForExam(examId, callback) {
-  const sql = `
-    SELECT c.*, u.nom, u.prenom 
-    FROM Copie c 
-    JOIN Utilisateur u ON c.id_etudiant = u.id 
-    WHERE c.id_examen = ?
-  `;
+  const sql = `SELECT c.*, u.nom, u.prenom FROM Copie c JOIN Utilisateur u ON c.id_etudiant = u.id WHERE c.id_examen = ?`;
 
   db.query(sql, [examId], async (err, copies) => {
     if (err) {

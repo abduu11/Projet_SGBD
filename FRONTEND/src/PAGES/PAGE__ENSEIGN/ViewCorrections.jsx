@@ -8,18 +8,13 @@ import { EyeOutlined, EditOutlined, RobotOutlined } from '@ant-design/icons';
 const { TextArea } = Input;
 
 const ViewCorrections = () => {
-  // State pour les soumissions et leur nombre
   const [submissions, setSubmissions] = useState([]);
   const [totalCopies, setTotalCopies] = useState(0);
-  // Flag pour savoir si une correction existe déjà
   const [dejaCorrige, setDejaCorrige] = useState(false);
-
-  // Gestion des modales
   const [assignModalVisible, setAssignModalVisible] = useState(false);
   const [autoModalVisible, setAutoModalVisible] = useState(false);
 
   const [selectedSubmission, setSelectedSubmission] = useState(null);
-  // Pour la note et le commentaire : noteIA contient la note générée par l'IA et note/commentaire sont utilisés pour la modification
   const [note, setNote] = useState('');
   const [commentaire, setCommentaire] = useState('');
   const [noteIA, setNoteIA] = useState(0);
@@ -31,7 +26,6 @@ const ViewCorrections = () => {
   const fichier_pdf = localStorage.getItem('fichier_pdf');
   const navigate = useNavigate();
 
-  // Récupération des soumissions grâce à l'id_examen
   useEffect(() => {
     if (idExamen) {
       axios
@@ -48,7 +42,6 @@ const ViewCorrections = () => {
     }
   }, [idExamen]);
 
-  // Fonction pour lancer l'auto-correction par l'IA
   const handleCorrectWithAI = async (submission) => {
     setCorrectionEnCours((prev) => ({ ...prev, [submission.id]: true }));
     try {
@@ -57,10 +50,8 @@ const ViewCorrections = () => {
         id_copie: submission.id,
         fichier_pdf: submission.fichier_pdf,
       });
-      // Stockage du résultat retourné par l'API
       setCorrectionResult(response.data.correction);
       setNoteIA(response.data.correction.note);
-      // Mise à jour de l'état des soumissions pour refléter la proposition de l'IA
       setSubmissions((prev) =>
         prev.map((sub) =>
           sub.id === submission.id
@@ -85,8 +76,6 @@ const ViewCorrections = () => {
     }
   };
 
-  // Lors du clic sur "Valider" dans la modal d'auto-correction,
-  // On vérifie si une correction existe déjà et dans ce cas on affiche une alerte.
   const handleSaveCorrection = async () => {
     if (dejaCorrige) {
       message.error("Une correction existe déjà. Veuillez cliquer sur 'Modifier la note' pour la modifier.");
@@ -122,7 +111,6 @@ const ViewCorrections = () => {
     }
   };
 
-  // Permet d'ouvrir directement la modale de modification manuelle, pré-remplie
   const handleOpenModifyNote = (submission) => {
     if (!submission) {
       message.error("Soumission non sélectionnée !");
@@ -134,7 +122,6 @@ const ViewCorrections = () => {
     setAssignModalVisible(true);
   };
 
-  // Sauvegarde la note et le commentaire modifiés (via l'endpoint modifier)
   const handleAssignNoteEtu = async () => {
     if (selectedSubmission) {
       try {
@@ -158,13 +145,11 @@ const ViewCorrections = () => {
     }
   };
 
-  // Annule et ferme toutes les modales
   const handleModalCancel = () => {
     setAssignModalVisible(false);
     setAutoModalVisible(false);
   };
 
-  // Affiche une modal d'information pour voir les détails de la correction générée par l'IA
   const handleSeeDetails = (submission) => {
     if (submission && submission.commentaire && submission.note) {
       Modal.info({
@@ -184,7 +169,6 @@ const ViewCorrections = () => {
   };
   
 
-  // Définition des colonnes du tableau
   const submissionColumns = [
     {
       title: 'Étudiant',
@@ -282,7 +266,6 @@ const ViewCorrections = () => {
         pagination={false} 
       />
 
-      {/* Modal pour afficher le résultat de la correction automatique */}
       <Modal
         title="Résultat de la Correction Automatique"
         visible={autoModalVisible}
@@ -305,7 +288,6 @@ const ViewCorrections = () => {
         )}
       </Modal>
 
-      {/* Modal pour modification manuelle de la note */}
       <Modal
         title="Attribuer ou Modifier la note"
         visible={assignModalVisible}

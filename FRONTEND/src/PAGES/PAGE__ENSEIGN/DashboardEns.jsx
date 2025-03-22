@@ -34,8 +34,6 @@ const DashboardEns = () => {
         return <CreateExam />;
       case 'submissions':
         return <ViewSubmissions />;
-      //case 'corrections':
-        //return <ViewCorrections />;
       case 'stats':
         return <ExamStats />;
       case 'exams':
@@ -85,7 +83,7 @@ const DashboardEns = () => {
             startIcon={<LogoutIcon />}
             style={{ backgroundColor: '#1976d2', color: 'white', fontSize: 16, padding: '20px' }}
           >
-            Déconnexion
+            {<LogoutIcon />}Déconnexion
           </Button>
         </Header>
         <Content style={{ padding: 20, background: '#f0f2f5', minHeight: 'calc(100vh - 64px)', overflowY: 'auto'}}>

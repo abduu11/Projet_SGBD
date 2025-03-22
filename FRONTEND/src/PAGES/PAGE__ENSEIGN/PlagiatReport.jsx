@@ -16,7 +16,6 @@ const PlagiatReport = () => {
   const [error, setError] = useState(null);
   const [generatingReport, setGeneratingReport] = useState(false);
 
-  // Récupération des enseignants
   useEffect(() => {
     const fetchEnseignants = async () => {
       try {
@@ -32,9 +31,8 @@ const PlagiatReport = () => {
     };
 
     fetchEnseignants();
-  }, []); // Dépendance vide pour ne s'exécuter qu'une fois
+  }, []); 
 
-  // Récupération des examens d'un enseignant
   const fetchExams = async (enseignantId) => {
     try {
       setLoading(true);
@@ -48,7 +46,6 @@ const PlagiatReport = () => {
     }
   };
 
-  // Lors du changement d'enseignant
   const handleEnseignantChange = (value) => {
     setSelectedEnseignant(value);
     setSelectedExam(null);
@@ -58,7 +55,6 @@ const PlagiatReport = () => {
     }
   };
 
-  // Détection du plagiat pour l'examen sélectionné
   const fetchPlagiatReport = async () => {
     if (!selectedExam) {
       message.error("Veuillez sélectionner un examen");
@@ -100,7 +96,6 @@ const PlagiatReport = () => {
         { responseType: 'blob' }
       );
 
-      // Créer un lien pour télécharger le fichier
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
@@ -118,7 +113,6 @@ const PlagiatReport = () => {
     }
   };
 
-  // Affichage des erreurs
   if (error) {
     return <Alert type="error" message={error} />;
   }
@@ -147,12 +141,12 @@ const PlagiatReport = () => {
       title: "Date de détection", 
       dataIndex: "date_detection", 
       key: "date_detection",
-      render: (date) => new Date(date).toLocaleString()
+      render: (date) => new Date(date).toLocaleString() 
     }
   ];
 
   return (
-    <Card 
+    <Card
       title={
         <Space>
           <Title level={4}>Rapport de Plagiat par Examen</Title>
@@ -175,7 +169,7 @@ const PlagiatReport = () => {
           )}
         </Space>
       }
-      style={{ margin: '20px' }}
+      style={{ margin: '0px' }}
     >
       <div style={{ marginBottom: 20 }}>
         <Select 

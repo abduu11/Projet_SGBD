@@ -59,7 +59,7 @@ import { Alert, AlertTitle } from '@mui/material';
      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: '100vh', background: '#f0f2f5', padding: '0px 0', overflow: 'hidden' }}>
        {message && (
          <Alert
-           severity={color} // "success" ou "error"
+           severity={color} 
            onClose={() => setMessage('')}
            sx={{ marginBottom: 2, width: '100%', maxWidth: '600px', borderRadius: '10px' }}
          >
