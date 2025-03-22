@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { Layout, Menu, Typography, Row, Col, Badge, Button } from 'antd';
-import { BookOutlined, BarChartOutlined, FileDoneOutlined, MessageOutlined, SettingOutlined, BellOutlined, MenuUnfoldOutlined, MenuFoldOutlined } from '@ant-design/icons';
+import { BookOutlined, BarChartOutlined, FileDoneOutlined, MessageOutlined, SettingOutlined, BellOutlined, MenuUnfoldOutlined, MenuFoldOutlined, LogoutOutlined } from '@ant-design/icons';
 import "antd/dist/reset.css";
 import Chatbot from "./Chatbot.jsx";
-import LogoutIcon from "@mui/icons-material/Logout";
 import { useNavigate } from 'react-router-dom';
 import Stats from './Stats.jsx';
 import Notes from './Notes.jsx';
@@ -13,9 +12,9 @@ import MesExams from './MesExams.jsx';
 const { Header, Content, Sider } = Layout;
 const { Title } = Typography;
 
-    const BLUE_COLOR = '#1976d2'; // Couleur principale (bleu)
-const WHITE_COLOR = '#fff'; // Blanc
-const LIGHT_GRAY_COLOR = '#f0f2f5'; // Gris clair
+const BLUE_COLOR = '#1976d2'; 
+const WHITE_COLOR = '#fff'; 
+const LIGHT_GRAY_COLOR = '#f0f2f5'; 
 
 const Dashboard = () => {
     const [collapsed, setCollapsed] = useState(false);
@@ -79,7 +78,7 @@ const Dashboard = () => {
                 >
                     <Menu.Item key="7" icon={<BookOutlined />}>Mes Examens</Menu.Item>
                     <Menu.Item key="3" icon={<BarChartOutlined />}>Statistiques</Menu.Item>
-                    <Menu.Item key="4" icon={<FileDoneOutlined />}>Notes et Appréciations</Menu.Item>
+                    <Menu.Item key="4" icon={<FileDoneOutlined />}>Notes</Menu.Item>
                     <Menu.Item key="5" icon={<MessageOutlined />}>ChatBot</Menu.Item>
                     <Menu.Item key="6" icon={<SettingOutlined />}>Paramètres</Menu.Item>
                 </Menu>
@@ -102,9 +101,9 @@ const Dashboard = () => {
                         </Badge>
                         <Button
                             onClick={handleLogout}
-                            icon={<LogoutIcon />}
                             style={{ backgroundColor: BLUE_COLOR, color: WHITE_COLOR, fontSize: 16, padding: '20px' }}
                         >
+                            <LogoutOutlined />
                             Déconnexion
                         </Button>
                     </div>

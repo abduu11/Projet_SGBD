@@ -1,1 +1,4 @@
 BACKEND/ .envsssss
+.env
+.env.local
+.env.*.local

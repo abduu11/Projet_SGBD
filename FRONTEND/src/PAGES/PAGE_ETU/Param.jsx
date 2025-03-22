@@ -1,65 +1,61 @@
-import React, { useState } from 'react';
-import { Card, Switch, Button, Form, Input, message } from 'antd';
-import { LockOutlined, UserOutlined, MailOutlined, BellOutlined } from '@ant-design/icons';
+import { BellOutlined, LockOutlined, MailOutlined, UserOutlined } from '@ant-design/icons';
+import { Button, Card, Form, Input, message, Switch } from 'antd';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 
 const Param = () => {
     const [form] = Form.useForm();
     const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+    const [userInfo, setUserInfo] = useState({
+        prenom: '',
+        nom: '',
+        email: ''
+    });
 
-    const handleSavePassword = (values) => {
-        console.log('Nouveau mot de passe :', values.password);
-        message.success('Mot de passe mis à jour avec succès !');
-    };
+    useEffect(() => {
+        const fetchUserInfo = async () => {
+            try {
+                const id = localStorage.getItem('id_utilisateur');
+                const response = await axios.get(`http://localhost:5000/api/parametres/${id}`);
+                setUserInfo(response.data);
+            } catch (error) {
+                console.error('Erreur lors de la récupération des informations:', error);
+                message.error('Erreur lors de la récupération des informations');
+            }
+        };
 
-    const handleSaveProfile = (values) => {
-        console.log('Informations mises à jour :', values);
-        message.success('Profil mis à jour avec succès !');
+        fetchUserInfo();
+    }, []);
+
+    const handleSavePassword = async (values) => {
+        try {
+            const id = localStorage.getItem('id_utilisateur');
+            await axios.post('http://localhost:5000/api/parametres/password', {
+                id,
+                currentPassword: values.currentPassword,
+                newPassword: values.newPassword
+            });
+            message.success('Mot de passe mis à jour avec succès !');
+            form.resetFields(['currentPassword', 'newPassword', 'confirmPassword']);
+        } catch (error) {
+            console.error('Erreur lors de la mise à jour du mot de passe:', error);
+            message.error(error.response?.data?.erreur || 'Erreur lors de la mise à jour du mot de passe');
+        }
     };
 
     return (
         <Card title="Paramètres du Compte">
-            {/* Section Mot de passe */}
-            <Card type="inner" title="Changer le mot de passe" style={{ marginBottom: 20 }}>
-                <Form form={form} onFinish={handleSavePassword}>
-                    <Form.Item
-                        name="password"
-                        rules={[{ required: true, message: 'Veuillez entrer un nouveau mot de passe !' }]}
-                    >
-                        <Input.Password
-                            prefix={<LockOutlined />}
-                            placeholder="Nouveau mot de passe"
-                        />
-                    </Form.Item>
-                    <Form.Item
-                        name="confirmPassword"
-                        dependencies={['password']}
-                        rules={[
-                            { required: true, message: 'Veuillez confirmer votre mot de passe !' },
-                            ({ getFieldValue }) => ({
-                                validator(_, value) {
-                                    if (!value || getFieldValue('password') === value) {
-                                        return Promise.resolve();
-                                    }
-                                    return Promise.reject(new Error('Les mots de passe ne correspondent pas !'));
-                                },
-                            }),
-                        ]}
-                    >
-                        <Input.Password
-                            prefix={<LockOutlined />}
-                            placeholder="Confirmer le mot de passe"
-                        />
-                    </Form.Item>
-                    <Form.Item>
-                        <Button type="primary" htmlType="submit" block>
-                            Enregistrer le mot de passe
-                        </Button>
-                    </Form.Item>
-                </Form>
+            {/* Section Informations personnelles */}
+            <Card type="inner" title="Informations personnelles" style={{ marginBottom: 20 }}>
+                <div style={{ padding: '20px' }}>
+                    <p><UserOutlined /> Prénom: {userInfo.prenom}</p>
+                    <p><UserOutlined /> Nom: {userInfo.nom}</p>
+                    <p><MailOutlined /> Email: {userInfo.email}</p>
+                </div>
             </Card>
 
             {/* Section Notifications */}
-            <Card type="inner" title="Notifications" style={{ marginBottom: 20 }}>
+            <Card type="inner" title="Notifications">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span>
                         <BellOutlined style={{ marginRight: 8 }} />
@@ -70,47 +66,6 @@ const Param = () => {
                         onChange={(checked) => setNotificationsEnabled(checked)}
                     />
                 </div>
-            </Card>
-
-            {/* Section Informations personnelles */}
-            <Card type="inner" title="Informations personnelles">
-                <Form onFinish={handleSaveProfile}>
-                    <Form.Item
-                        name="firstName"
-                        rules={[{ required: true, message: 'Veuillez entrer votre prénom !' }]}
-                    >
-                        <Input
-                            prefix={<UserOutlined />}
-                            placeholder="Prénom"
-                        />
-                    </Form.Item>
-                    <Form.Item
-                        name="lastName"
-                        rules={[{ required: true, message: 'Veuillez entrer votre nom !' }]}
-                    >
-                        <Input
-                            prefix={<UserOutlined />}
-                            placeholder="Nom"
-                        />
-                    </Form.Item>
-                    <Form.Item
-                        name="email"
-                        rules={[
-                            { required: true, message: 'Veuillez entrer votre email !' },
-                            { type: 'email', message: 'Veuillez entrer un email valide !' },
-                        ]}
-                    >
-                        <Input
-                            prefix={<MailOutlined />}
-                            placeholder="Email"
-                        />
-                    </Form.Item>
-                    <Form.Item>
-                        <Button type="primary" htmlType="submit" block>
-                            Enregistrer les modifications
-                        </Button>
-                    </Form.Item>
-                </Form>
             </Card>
         </Card>
     );

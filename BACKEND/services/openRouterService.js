@@ -61,25 +61,46 @@ function getRandomElement(arr) {
 
 const API_KEY = getRandomElement(API_tab);
 
-const getChatResponse = async ( message ) => {
+const getChatResponse = async (message) => {
     try {
+        if (!API_KEY) {
+            throw new Error("Aucune clé API OpenRouter n'est disponible");
+        }
+
         const response = await axios.post("https://openrouter.ai/api/v1/chat/completions",
-    {
-            model: "deepseek/deepseek-chat:free",
-            messages: [{role: "user", content: message}],
-        },
-    {
-            headers: {
-            Authorization: `Bearer ${API_KEY}`,
-            "HTTP-Referer": "http://localhost:5000",
-            "X-Title": "Chatbot SUNU SCHOOL AI",
-            "Content-Type": "application/json",
-        },
-    });
-        return response.data.choices[0].message.content;
+            {
+                model: "deepseek/deepseek-chat:free",
+                messages: [{role: "user", content: message}],
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${API_KEY}`,
+                    "HTTP-Referer": "http://localhost:5000",
+                    "X-Title": "Chatbot SUNU SCHOOL AI",
+                    "Content-Type": "application/json",
+                },
+            }
+        );
+
+        if (!response.data || !response.data.choices || !response.data.choices[0]) {
+            throw new Error("Format de réponse invalide de l'API OpenRouter");
+        }
+
+        return {
+            reponse: response.data.choices[0].message.content
+        };
     } catch (err) {
-        console.error("Erreur OpenRouter :", err.response ? err.response.data : err.message);
-        throw new Error("Erreur lors de la communication avec OpenRouter.");
+        console.error("Erreur OpenRouter détaillée:", {
+            message: err.message,
+            response: err.response ? err.response.data : null,
+            status: err.response ? err.response.status : null
+        });
+        
+        if (err.response) {
+            throw new Error(`Erreur OpenRouter (${err.response.status}): ${err.response.data?.error?.message || err.message}`);
+        }
+        
+        throw new Error(`Erreur lors de la communication avec OpenRouter: ${err.message}`);
     }
 };
 

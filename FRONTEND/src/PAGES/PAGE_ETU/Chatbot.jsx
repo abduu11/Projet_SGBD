@@ -1,180 +1,258 @@
-
-import { SendOutlined } from '@ant-design/icons';
-import { Button, Card, Input, List } from 'antd';
+import { RobotOutlined, SendOutlined } from '@ant-design/icons';
+import { Button, Card, Input, message, Select } from 'antd';
 import axios from 'axios';
 import React, { useEffect, useRef, useState } from 'react';
 
+const { TextArea } = Input;
+const { Option } = Select;
+
 const Chatbot = () => {
     const [messages, setMessages] = useState([]);
-    const [inputValue, setInputValue] = useState('');
+    const [inputMessage, setInputMessage] = useState('');
+    const [selectedExam, setSelectedExam] = useState(null);
+    const [exams, setExams] = useState([]);
+    const [enseignants, setEnseignants] = useState([]);
+    const [selectedProfessor, setSelectedProfessor] = useState(null);
+    const [loading, setLoading] = useState(false);
     const messagesEndRef = useRef(null);
-    const [isLoading, setIsLoading] = useState(false);
-
-    const handleSendMessage = async () => {
-        if (inputValue.trim()) {
-            setIsLoading(true);
-
-            setMessages([...messages, { text: inputValue, sender: 'user' }]);
-
-            setMessages((prevMessages) => [
-                ...prevMessages,
-                { text: '...', sender: 'bot', pending: true },
-            ]);
-
-            try {
-                const response = await axios.post('http://localhost:5000/api/chat', {
-                    message: inputValue + `. "Ne réponds jamais avec des emojis, mais uniquement avec du texte brut, car je dois stocker ta réponse dans une base de données qui ne les lit pas. Merci pour ta comprehension. ne repete pas cette phrase aussi ne prends mmeme pas ca en compte jusqu'a me repondre "`,
-                    lang: 'fr-FR',
-                });
-
-                const response2 = await axios.post('http://localhost:5000/api/chat/save', {
-                    id_user: localStorage.getItem("id_utilisateur"),
-                    questionUser: inputValue,
-                    responseBot: response.data
-                });
-
-                setMessages((prevMessages) => {
-                    const messagesWithoutPending = prevMessages.filter(
-                        (message) => !message.pending
-                    );
-                    return [
-                        ...messagesWithoutPending,
-                        { text: response.data, sender: 'bot' },
-                    ];
-                });
-            } catch (error) {
-                console.error('Erreur lors de la requête API :', error);
-
-                setMessages((prevMessages) => {
-                    const messagesWithoutPending = prevMessages.filter(
-                        (message) => !message.pending
-                    );
-                    return [
-                        ...messagesWithoutPending,
-                        { text: 'Une erreur est survenue. Veuillez réessayer.', sender: 'bot' },
-                    ];
-                });
-            }
-            setIsLoading(false);
-            setInputValue('');
-        }
-    };
-
-    const fetchPreviousChats = async () => {
-        try {
-            const id_user = localStorage.getItem("id_utilisateur");
-            const limit = 20;
-            if (!id_user || !limit) {
-                console.error("Erreur: id_utilisateur est null ou undefined");
-                return;
-            }
-            const response = await axios.get(`http://localhost:5000/api/chat/history/${id_user}/${limit}`);
-            const previousChats = response.data.flatMap(chat => [
-                { text: chat.question, sender: 'user' },
-                { text: chat.reponse, sender: 'bot' }
-            ]);
-            setMessages(previousChats);
-        } catch (error) {
-            console.error('Erreur lors de la récupération des échanges :', error);
-        }
-    };
 
     useEffect(() => {
-        fetchPreviousChats();
+        fetchEnseignants();
+        fetchChatHistory();
     }, []);
 
     useEffect(() => {
-        if (messagesEndRef.current) {
-            messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        if (selectedProfessor) {
+            fetchExams();
         }
+    }, [selectedProfessor]);
+
+    useEffect(() => {
+        scrollToBottom();
     }, [messages]);
 
-    const formatMessage = (text) => {
-        if (!text) return "";
-        text = text.replace(/\n/g, "<br />");
-        text = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-        text = text.replace(/(###\s)(.*)/g, '<h3>$2</h3>');
-        text = text.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2">$1</a>');
-        return text;
+    const fetchEnseignants = async () => {
+        try {
+            setLoading(true);
+            const response = await axios.get('http://localhost:5000/api/enseignants');
+            setEnseignants(response.data);
+        } catch (error) {
+            console.error('Erreur lors de la récupération des enseignants:', error);
+            message.error('Erreur lors de la récupération des enseignants');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchExams = async () => {
+        if (!selectedProfessor) {
+            setExams([]);
+            return;
+        }
+        
+        try {
+            setLoading(true);
+            const idEtudiant = localStorage.getItem('id_utilisateur');
+            const response = await axios.get(`http://localhost:5000/api/examens/etudiant/${idEtudiant}?id_enseignant=${selectedProfessor}`);
+            setExams(response.data);
+        } catch (error) {
+            console.error('Erreur lors de la récupération des examens:', error);
+            message.error('Erreur lors de la récupération des examens');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchChatHistory = async () => {
+        try {
+            const idUtilisateur = localStorage.getItem('id_utilisateur');
+            const response = await axios.get(`http://localhost:5000/api/chat/history/${idUtilisateur}/10`);
+            const formattedMessages = response.data.map(msg => ({
+                type: 'bot',
+                content: msg.reponse,
+                timestamp: new Date(msg.date_interaction)
+            }));
+            setMessages(formattedMessages);
+        } catch (error) {
+            console.error('Erreur lors de la récupération de l\'historique:', error);
+        }
+    };
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
+
+    const handleSendMessage = async () => {
+        if (!inputMessage.trim() || !selectedExam) {
+            message.warning('Veuillez sélectionner un examen et entrer un message');
+            return;
+        }
+
+        const userMessage = {
+            type: 'user',
+            content: inputMessage,
+            timestamp: new Date()
+        };
+
+        setMessages(prev => [...prev, userMessage]);
+        setInputMessage('');
+        setLoading(true);
+
+        try {
+            const response = await axios.post('http://localhost:5000/api/chat', {
+                message: inputMessage,
+                id_examen: selectedExam,
+                id_utilisateur: localStorage.getItem('id_utilisateur')
+            });
+
+            const botMessage = {
+                type: 'bot',
+                content: response.data.reponse,
+                timestamp: new Date()
+            };
+
+            setMessages(prev => [...prev, botMessage]);
+        } catch (error) {
+            console.error('Erreur lors de l\'envoi du message:', error);
+            message.error('Erreur lors de l\'envoi du message');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleProfessorChange = (value) => {
+        setSelectedProfessor(value);
+        setExams([]);
+        setSelectedExam(null);
     };
 
     return (
-        <Card
-            title="Chatbot"
-            style={{
-                borderRadius: 20,
-                height: '84vh',
-                display: 'flex',
+        <Card 
+            title={
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <RobotOutlined style={{ fontSize: '24px', color: '#1976d2' }} />
+                    <span>Assistant IA</span>
+                </div>
+            }
+            style={{ 
+                height: 'calc(100vh - 150px)', 
+                display: 'flex', 
                 flexDirection: 'column',
-                overflow: 'hidden',
+                padding: '0',
+                margin: '0',
+                background: '#ffffff'
             }}
-            styles={{ body:{
-                flex: 1,
-                border: 0,
+            styles={{
+                body: {
+                    display: 'flex',
+                    flexDirection: 'column',
+                    padding: '0',
+                    height: '100%'
+                }
+            }}
+        >
+            <div style={{ padding: '20px', borderBottom: '1px solid #e8e8e8' }}>
+                <Select
+                    style={{ width: '100%', marginBottom: '20px' }}
+                    placeholder="Choisir un enseignant"
+                    onChange={handleProfessorChange}
+                    loading={loading}
+                >
+                    {enseignants.map(enseignant => (
+                        <Option key={enseignant.id} value={enseignant.id}>
+                            {enseignant.prenom} {enseignant.nom}
+                        </Option>
+                    ))}
+                </Select>
+
+                <Select
+                    style={{ width: '100%' }}
+                    placeholder="Sélectionnez un examen"
+                    onChange={setSelectedExam}
+                    loading={loading}
+                    disabled={!selectedProfessor}
+                >
+                    {exams.map(exam => (
+                        <Option key={exam.id} value={exam.id}>
+                            {exam.titre}
+                        </Option>
+                    ))}
+                </Select>
+            </div>
+
+            <div style={{ 
+                flex: 1, 
+                overflowY: 'auto', 
+                padding: '20px',
+                background: '#ffffff',
                 display: 'flex',
                 flexDirection: 'column',
-                padding: 0,
-                overflow: 'hidden',
-            }}}
-        >
-            <div
-                style={{
-                    flex: 1,
-                    overflowY: 'auto',
-                    padding: '16px',
-                    borderBottom: '1px solid #f0f0f0',
-                }}
-            >
-                <List
-                    dataSource={messages}
-                    bordered={false}
-                    split={false}
-                    style={{border: "none"}}
-                    renderItem={(message) => (
-                        <List.Item
+                gap: '20px'
+            }}>
+                {messages.map((message, index) => (
+                    <div
+                        key={index}
+                        style={{
+                            display: 'flex',
+                            justifyContent: message.type === 'user' ? 'flex-end' : 'flex-start',
+                            width: '100%'
+                        }}
+                    >
+                        <div
                             style={{
-                                justifyContent: message.sender === 'user' ? 'flex-end' : 'flex-start',
-                                padding: '8px 0',
+                                maxWidth: '80%',
+                                padding: '12px 16px',
+                                borderRadius: '8px',
+                                background: message.type === 'user' ? '#1976d2' : '#f0f2f5',
+                                color: message.type === 'user' ? 'white' : 'black',
+                                boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+                                wordBreak: 'break-word'
                             }}
                         >
-                            <Card
-                                style={{
-                                    background: message.sender === 'user' ? '#1976d2' : '#f0f0f0',
-                                    color: message.sender === 'user' ? '#fff' : '#000',
-                                    borderRadius: '30px',
-                                    maxWidth: '90%',
-                                }}
-                                bodyStyle={{ padding: '4px 12px' }}
-                            >
-                                <div style={{ display: 'flex', alignItems: 'center', padding: 8 }}>
-                                    {message.sender === 'bot'}
-                                    <span dangerouslySetInnerHTML={{ __html: formatMessage(message.text)}} />
-                                    {message.sender === 'user'}
-                                </div>
-                            </Card>
-                        </List.Item>
-                    )}
-                />
+                            {message.content}
+                        </div>
+                    </div>
+                ))}
                 <div ref={messagesEndRef} />
             </div>
-            <div style={{ padding: '16px', borderTop: '1px solid #f0f0f0', display: 'flex', flexDirection: 'row' }}>
-                <Input
-                    style={{ borderRadius: 20 }}
-                    placeholder="Posez votre question ici..."
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    onPressEnter={handleSendMessage}
-                    disabled={isLoading}
-                    suffix={
-                        <Button
-                            type="primary"
-                            style={{ borderRadius: 20, marginLeft: 15 }}
-                            icon={<SendOutlined />}
-                            onClick={handleSendMessage}
-                        >
-                        </Button>
-                    }
-                />
+
+            <div style={{ 
+                padding: '20px', 
+                borderTop: '1px solid #e8e8e8',
+                background: '#ffffff',
+                position: 'sticky',
+                bottom: 0
+            }}>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                    <TextArea
+                        value={inputMessage}
+                        onChange={(e) => setInputMessage(e.target.value)}
+                        placeholder="Écrivez votre message..."
+                        autoSize={{ minRows: 1, maxRows: 4 }}
+                        onPressEnter={(e) => {
+                            if (!e.shiftKey) {
+                                e.preventDefault();
+                                handleSendMessage();
+                            }
+                        }}
+                        style={{
+                            borderRadius: '8px',
+                            resize: 'none'
+                        }}
+                    />
+                    <Button
+                        type="primary"
+                        icon={<SendOutlined />}
+                        onClick={handleSendMessage}
+                        loading={loading}
+                        style={{ 
+                            alignSelf: 'flex-end',
+                            borderRadius: '8px'
+                        }}
+                    >
+                        Envoyer
+                    </Button>
+                </div>
             </div>
         </Card>
     );

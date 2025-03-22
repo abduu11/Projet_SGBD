@@ -289,4 +289,80 @@ function genererRecommandations(notes, moyenne, ecartType, tauxReussite) {
   return recommandations;
 }
 
-module.exports = { getExamStats };
+const getStatsEtudiant = async (req, res) => {
+    const { id, idEnseignant } = req.params;
+
+    try {
+        const query = `
+            SELECT 
+                e.titre as matiere,
+                c.note,
+                c.date_correction,
+                c.commentaires
+            FROM Correction c
+            JOIN Copie cp ON c.id_copie = cp.id
+            JOIN Examen e ON cp.id_examen = e.id
+            WHERE cp.id_etudiant = ? 
+            AND e.id_enseignant = ?
+            AND c.statut = 'validé'
+            ORDER BY c.date_correction ASC
+        `;
+
+        db.query(query, [id, idEnseignant], (err, notes) => {
+            if (err) {
+                console.error('Erreur SQL:', err);
+                return res.status(500).json({ erreur: 'Erreur lors de la récupération des statistiques' });
+            }
+
+            if (!notes || notes.length === 0) {
+                return res.json({
+                    moyenneGenerale: 0,
+                    nombreExamens: 0,
+                    meilleureNote: 0,
+                    pireNote: 0,
+                    distributionNotes: [],
+                    evolutionNotes: []
+                });
+            }
+
+            // Calculer les statistiques
+            const moyenneGenerale = notes.reduce((acc, note) => acc + note.note, 0) / notes.length;
+            const meilleureNote = Math.max(...notes.map(n => n.note));
+            const pireNote = Math.min(...notes.map(n => n.note));
+
+            // Préparer les données pour le graphique d'évolution
+            const evolutionNotes = notes.map(note => ({
+                date: new Date(note.date_correction).toLocaleDateString('fr-FR'),
+                note: note.note
+            }));
+
+            // Calculer la distribution des notes
+            const distribution = {
+                'Très bien': notes.filter(n => n.note >= 16).length,
+                'Bien': notes.filter(n => n.note >= 14 && n.note < 16).length,
+                'Assez bien': notes.filter(n => n.note >= 12 && n.note < 14).length,
+                'Passable': notes.filter(n => n.note >= 10 && n.note < 12).length,
+                'Insuffisant': notes.filter(n => n.note < 10).length
+            };
+
+            const distributionNotes = Object.entries(distribution).map(([type, value]) => ({
+                type,
+                value
+            }));
+
+            res.json({
+                moyenneGenerale: parseFloat(moyenneGenerale.toFixed(2)),
+                nombreExamens: notes.length,
+                meilleureNote,
+                pireNote,
+                distributionNotes,
+                evolutionNotes
+            });
+        });
+    } catch (error) {
+        console.error('Erreur:', error);
+        res.status(500).json({ erreur: 'Erreur serveur' });
+    }
+};
+
+module.exports = { getExamStats, getStatsEtudiant };

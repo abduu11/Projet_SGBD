@@ -31,6 +31,15 @@ app.use('/api', correctionRoute);
 const plagiatRoute = require('./routes/plagiatRoute');
 app.use('/api', plagiatRoute);
 
+const parametresRoute = require('./routes/parametresRoute');
+app.use('/api/parametres', parametresRoute);
+
+const notesRoute = require('./routes/notesRoutes');
+app.use('/api/notes', notesRoute);
+
+const statistiquesRoute = require('./routes/statistiquesRoutes');
+app.use('/api/statistiques', statistiquesRoute);
+
 app.get('/', (req, res)=>{
     res.send("Bienvenu");
 } );
