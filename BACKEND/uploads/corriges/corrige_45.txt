@@ -1,0 +1,25 @@
+**Corrigé type :**
+
+**Sujet : En informatique, c’est quoi un SaaS et un PaaS ? Expliquer en un paragraphe.**
+
+---
+
+**SaaS (Software as a Service)**  
+Le SaaS (Software as a Service) est un modèle de distribution de logiciels où les applications sont hébergées par un fournisseur et accessibles via Internet par les utilisateurs. Les utilisateurs n’ont pas besoin d’installer ou de gérer le logiciel localement, car tout est géré par le fournisseur, y compris les mises à jour, la maintenance et la sécurité. Exemple : Google Workspace, Microsoft 365.  
+
+**PaaS (Platform as a Service)**  
+Le PaaS (Platform as a Service) est une plateforme cloud qui fournit un environnement complet pour développer, tester, déployer et gérer des applications. Il offre des outils et des services comme des bases de données, des serveurs et des frameworks de développement, permettant aux développeurs de se concentrer sur la création d’applications sans se soucier de l’infrastructure sous-jacente. Exemple : Heroku, Microsoft Azure App Services.  
+
+**En résumé**, le SaaS est une solution logicielle prête à l’emploi accessible en ligne, tandis que le PaaS est une plateforme de développement cloud pour créer et gérer des applications personnalisées. Tous deux font partie des services cloud, mais ils répondent à des besoins différents : utilisation directe pour le SaaS et développement pour le PaaS.  
+
+--- 
+
+**Critères d'évaluation :**  
+- Compréhension claire des concepts SaaS et PaaS.  
+- Explication concise et structurée.  
+- Exemples pertinents pour illustrer chaque notion.  
+- Rédaction fluide et précise.  
+
+**Note indicative :**  
+14/20 : Bonne compréhension des concepts, explication claire, mais manque de détails supplémentaires ou d’une analyse approfondie.  
+16/20 : Excellente compréhension, explication très claire, exemples pertinents et rédaction impeccable.

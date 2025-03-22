@@ -28,6 +28,9 @@ app.use('/api', copieRoute);
 const correctionRoute = require('./routes/correctionRoutes');
 app.use('/api', correctionRoute);
 
+const plagiatRoute = require('./routes/plagiatRoute');
+app.use('/api', plagiatRoute);
+
 app.get('/', (req, res)=>{
     res.send("Bienvenu");
 } );

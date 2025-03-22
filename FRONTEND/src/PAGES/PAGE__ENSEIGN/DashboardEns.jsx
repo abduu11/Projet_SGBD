@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Layout, Menu, Typography, Button, Card } from 'antd';
-import { GraduationCap, FileText, CheckSquare, BarChart3, BookOpen } from 'lucide-react';
+import { GraduationCap, FileText, CheckSquare, BarChart3, BookOpen, FileStack	} from 'lucide-react';
+import { FileTextOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import CreateExam from './CreateExam';
 import ViewExams from './ViewExams';
@@ -9,6 +10,7 @@ import ViewCorrections from './ViewCorrections';
 import ExamStats from './ExamStats';
 import LogoutIcon from "@mui/icons-material/Logout";
 import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
+import PlagiatReport from './PlagiatReport';
 
 const { Header, Content, Sider } = Layout;
 const { Title } = Typography;
@@ -23,6 +25,7 @@ const DashboardEns = () => {
     { key: 'submissions', title: 'Examens Soumis', icon: <FileText /> },
     { key: 'stats', title: 'Statistiques', icon: <BarChart3 /> },
     { key: 'exams', title: 'Copies Soumises', icon: <BookOpen /> },
+    { key: 'plagiat', title: 'Rapport de Plagiat', icon: <FileStack /> },
   ];
 
   const renderContent = () => {
@@ -37,6 +40,8 @@ const DashboardEns = () => {
         return <ExamStats />;
       case 'exams':
         return <ViewExams />;
+      case 'plagiat':
+        return <PlagiatReport />;
       default:
         return <div style={{ textAlign: 'center', color: '#777', fontSize: '1.2rem' }}>Sélectionnez une option pour commencer</div>;
     }
