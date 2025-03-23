@@ -1,12 +1,24 @@
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
+
+const ensureDirectoryExists = (directory) => {
+    if (!fs.existsSync(directory)) {
+        fs.mkdirSync(directory, { recursive: true });
+    }
+};
+
+const uploadsDir = path.join(__dirname, '..', 'uploads');
+ensureDirectoryExists(uploadsDir);
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'uploads/');
+        ensureDirectoryExists(uploadsDir);
+        cb(null, uploadsDir);
     },
     filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname));
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, uniqueSuffix + path.extname(file.originalname));
     }
 });
 
@@ -17,6 +29,9 @@ const upload = multer({
             return cb(new Error("Seuls les fichiers PDF sont autorisés"), false);
         }
         cb(null, true);
+    },
+    limits: {
+        fileSize: 5 * 1024 * 1024
     }
 });
 

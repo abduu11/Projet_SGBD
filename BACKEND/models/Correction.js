@@ -17,18 +17,27 @@ const Correction = {
             if (err) {
                 return callback(err, null);
             }
+            
             if (result.length > 0) {
-                return callback(new Error("L'étudiant a déjà une correction"), null);
+                // Si une correction existe, on la met à jour
+                const updateQuery = `UPDATE Correction SET note = ?, commentaires = ?, statut = ?, id_enseignant_validateur = ? WHERE id_copie = ?`;
+                db.query(updateQuery, [parseInt(note), commentaire, 'validé', id_enseignant_validateur, id_copie], (err, result) => {
+                    if (err) {
+                        return callback(err, null);
+                    }
+                    return callback(null, result);
+                });
+            } else {
+                // Sinon on crée une nouvelle correction
+                const insertQuery = `INSERT INTO Correction (id_copie, note, commentaires, statut, id_enseignant_validateur) VALUES (?, ?, ?, ?, ?)`;
+                db.query(insertQuery, [id_copie, parseInt(note), commentaire, 'validé', id_enseignant_validateur], (err, result) => {
+                    if (err) {
+                        return callback(err, null);
+                    }
+                    return callback(null, result);
+                });
             }
-            const query = `INSERT INTO Correction (id_copie, note, commentaires, statut, id_enseignant_validateur) VALUES (?, ?, ?, ?, ?);`;
-            db.query(query, [id_copie, parseInt(note), commentaire, 'validé', id_enseignant_validateur], (err, result) => {
-            if (err) {
-                return callback(err, null);
-            }
-            return callback(null, result);
         });
-        });
-        
     },
 
     updateCorrection: (id_copie, note, callback) => {

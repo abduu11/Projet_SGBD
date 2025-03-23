@@ -1,5 +1,5 @@
-import { DeleteOutlined, EditOutlined, EyeOutlined, UploadOutlined } from '@ant-design/icons';
-import { Button, Input, message, Modal, Select, Table, Upload } from 'antd';
+import { DeleteOutlined, EditOutlined, EyeOutlined, FileTextOutlined, UploadOutlined } from '@ant-design/icons';
+import { Button, Card, Input, message, Modal, Select, Table, Upload } from 'antd';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 
@@ -231,8 +231,12 @@ const MesExams = () => {
     ];
 
     return (
-        <div>
-            <h2>Mes Examens</h2>
+        <Card title={
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <FileTextOutlined style={{ fontSize: '24px', color: '#1976d2' }} />
+                <span>Mes Examens</span>
+            </div>
+        }>
             <Select
                 style={{ width: 300, marginBottom: 20 }}
                 placeholder="Choisir un enseignant"
@@ -319,7 +323,7 @@ const MesExams = () => {
             >
                 <p>Êtes-vous sûr de vouloir supprimer votre devoir pour l'examen "{selectedExam?.titre}" ?</p>
             </Modal>
-        </div>
+        </Card>
     );
 };
 

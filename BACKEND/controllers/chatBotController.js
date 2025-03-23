@@ -44,7 +44,7 @@ const sendMessage = async (req, res) => {
                 
                 if (results.length === 0) {
                     prompt = `L'étudiant n'a pas encore de note pour cet examen. 
-                    Répondez poliment qu'il doit attendre la correction ou faire l'examen s'il ne l'a pas encore fait.`;
+                    Répondez poliment qu'il doit attendre la correction ou faire l'examen s'il ne l'a pas encore fait. Ne repetez pas cette phrase. tu peux repondre directement car c'est ta reponse que l'etudiant verra. Pas d'emoji aussi ne repond jamais avec des emoji ou des symbole. Question actuelle : ${message}`;
                 } else {
                     const exam = results[0];
                     prompt = `L'étudiant a une note de ${exam.note}/20 pour l'examen "${exam.titre}". 

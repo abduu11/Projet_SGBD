@@ -1,9 +1,9 @@
-import { Button, Modal, Table, Input, message } from 'antd';
+import { EditOutlined, RobotOutlined } from '@ant-design/icons';
+import { Button, Input, message, Modal, Table } from 'antd';
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { EyeOutlined, EditOutlined, RobotOutlined } from '@ant-design/icons';
 
 const { TextArea } = Input;
 
@@ -45,11 +45,22 @@ const ViewCorrections = () => {
   const handleCorrectWithAI = async (submission) => {
     setCorrectionEnCours((prev) => ({ ...prev, [submission.id]: true }));
     try {
+      // Vérification des paramètres requis
+      if (!idExamen || !submission.id || !submission.fichier_pdf) {
+        message.error("Données manquantes pour la correction automatique");
+        return;
+      }
+
       const response = await axios.post('http://localhost:5000/api/correction', {
         id_examen: idExamen,
         id_copie: submission.id,
         fichier_pdf: submission.fichier_pdf,
       });
+
+      if (!response.data || !response.data.correction) {
+        throw new Error("Format de réponse invalide");
+      }
+
       setCorrectionResult(response.data.correction);
       setNoteIA(response.data.correction.note);
       setSubmissions((prev) =>
@@ -69,7 +80,19 @@ const ViewCorrections = () => {
       message.success('Correction automatique effectuée avec succès');
     } catch (error) {
       console.error('Erreur lors de la correction automatique:', error);
-      message.error('Erreur lors de la correction automatique');
+      
+      // Gestion spécifique des erreurs
+      if (error.response) {
+        // Erreur du serveur avec réponse
+        message.error(error.response.data.message || 'Erreur lors de la correction automatique');
+      } else if (error.request) {
+        // Erreur de requête sans réponse
+        message.error('Impossible de contacter le serveur. Vérifiez votre connexion.');
+      } else {
+        // Erreur de configuration
+        message.error('Erreur de configuration: ' + error.message);
+      }
+      
       setDejaCorrige(true);
     } finally {
       setCorrectionEnCours((prev) => ({ ...prev, [submission.id]: false }));
@@ -77,18 +100,20 @@ const ViewCorrections = () => {
   };
 
   const handleSaveCorrection = async () => {
-    if (dejaCorrige) {
-      message.error("Une correction existe déjà. Veuillez cliquer sur 'Modifier la note' pour la modifier.");
+    if (!selectedSubmission) {
+      message.error("Aucune soumission sélectionnée");
       return;
     }
-    if (selectedSubmission) {
-      try {
-        await axios.post('http://localhost:5000/api/enregistrer', {
-          id_copie: selectedSubmission.id,
-          note: noteIA, // On enregistre la note générée par l'IA
-          commentaire: correctionResult.commentaire,
-          id_enseignant_validateur: localStorage.getItem('id_utilisateur'),
-        });
+
+    try {
+      const response = await axios.post('http://localhost:5000/api/enregistrer', {
+        id_copie: selectedSubmission.id,
+        note: noteIA,
+        commentaire: correctionResult.commentaire,
+        id_enseignant_validateur: localStorage.getItem('id_utilisateur'),
+      });
+
+      if (response.data) {
         setSubmissions((prev) =>
           prev.map((sub) =>
             sub.id === selectedSubmission.id
@@ -103,9 +128,12 @@ const ViewCorrections = () => {
         );
         setAutoModalVisible(false);
         message.success('Note attribuée avec succès');
-      } catch (error) {
-        console.error("Erreur lors de l'enregistrement de la note:", error);
-        alert('Vous avez deja une correction pour cet étudiant voir details');
+      }
+    } catch (error) {
+      console.error("Erreur lors de l'enregistrement de la note:", error);
+      if (error.response && error.response.data && error.response.data.error) {
+        message.error(error.response.data.error);
+      } else {
         message.error("Erreur lors de l'attribution de la note");
       }
     }
@@ -219,9 +247,6 @@ const ViewCorrections = () => {
             icon={<RobotOutlined />}
             onClick={() => { 
               handleCorrectWithAI(record);
-              if (dejaCorrige) {
-                alert('Une correction existe déjà. Cliquez sur "Modifier la note" pour la modifier ou "Voir Détails" pour consulter le résultat généré.');
-              }
             }}
             loading={correctionEnCours[record.id] || false}
             style={{ marginBottom: 5, marginRight: 10 }}

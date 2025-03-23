@@ -1,4 +1,4 @@
-import { BellOutlined, LockOutlined, MailOutlined, UserOutlined } from '@ant-design/icons';
+import { BellOutlined, LockOutlined, MailOutlined, UserOutlined, SettingOutlined } from '@ant-design/icons';
 import { Button, Card, Form, Input, message, Switch } from 'antd';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
@@ -44,7 +44,12 @@ const Param = () => {
     };
 
     return (
-        <Card title="Paramètres du Compte">
+        <Card title={
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <SettingOutlined style={{ fontSize: '24px', color: '#1976d2' }} />
+                    <span>Paramètres du Compte</span>
+                </div>
+        }>
             {/* Section Informations personnelles */}
             <Card type="inner" title="Informations personnelles" style={{ marginBottom: 20 }}>
                 <div style={{ padding: '20px' }}>
@@ -53,6 +58,7 @@ const Param = () => {
                     <p><MailOutlined /> Email: {userInfo.email}</p>
                 </div>
             </Card>
+
 
             {/* Section Notifications */}
             <Card type="inner" title="Notifications">

@@ -1,4 +1,4 @@
-import { LineChartOutlined, TrophyOutlined } from '@ant-design/icons';
+import { LineChartOutlined, FileTextOutlined, TrophyOutlined } from '@ant-design/icons';
 import { Button, Card, Col, message, Row, Select, Statistic, Table, Typography } from 'antd';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
@@ -61,7 +61,7 @@ const Notes = () => {
 
     const columns = [
         {
-            title: 'Matière',
+            title: 'Examen',
             dataIndex: 'matiere',
             key: 'matiere',
         },
@@ -100,7 +100,13 @@ const Notes = () => {
 
     return (
         <div>
-            <Card style={{ marginBottom: 20 }}>
+            <Card style={{ marginBottom: 20 }}
+            title={
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <FileTextOutlined style={{ fontSize: '24px', color: '#1976d2' }} />
+                    <span>Notes</span>
+                </div>
+            }>
                 <Select
                     style={{ width: 300 }}
                     placeholder="Sélectionner un enseignant"

@@ -68,7 +68,14 @@ const Stats = () => {
 
     return (
         <div>
-            <Card style={{ marginBottom: 20 }}>
+            <Card style={{ marginBottom: 20 }}
+            title={
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <BarChartOutlined style={{ fontSize: '24px', color: '#1976d2' }} />
+                    <span>Statistiques</span>
+                </div>
+            }
+            >
                 <Select
                     style={{ width: 300 }}
                     placeholder="Sélectionner un enseignant"
