@@ -2,8 +2,15 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: projetsgbd-backend-deployment
+  labels:
+    app: projetsgbd-backend
 spec:
-  replicas: 2
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   selector:
     matchLabels:
       app: projetsgbd-backend
@@ -11,14 +18,55 @@ spec:
     metadata:
       labels:
         app: projetsgbd-backend
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "5000"
     spec:
       containers:
         - name: projetsgbd-backend
           image: projetsgbdregistry2.azurecr.io/projetsgbd-backend:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 5000
+              name: http
           envFrom:
             - secretRef:
                 name: backend-env
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 3
+          volumeMounts:
+            - name: uploads-volume
+              mountPath: /app/uploads
+      volumes:
+        - name: uploads-volume
+          persistentVolumeClaim:
+            claimName: uploads-pvc
       imagePullSecrets:
         - name: projetsgbd-registry-secret
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 2000

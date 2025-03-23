@@ -250,28 +250,39 @@ const analyserCopie = async (id_examen, copiePDF) => {
         }
 
         // Vérification de l'existence des fichiers
-        const copieFullPath = path.join(__dirname, '../uploads', copiePDF);
+        const copieFullPath = path.join(__dirname, '../uploads/copies', copiePDF);
         const corrigeTypePath = path.join(__dirname, '../uploads/corriges', `corrige_${id_examen}.pdf`);
 
         if (!fs.existsSync(copieFullPath)) {
-            throw new Error("Le fichier de la copie n'existe pas");
+            throw new Error(`Le fichier de la copie n'existe pas à l'emplacement: ${copieFullPath}`);
         }
 
         if (!fs.existsSync(corrigeTypePath)) {
-            throw new Error("Le corrigé type n'existe pas");
+            throw new Error(`Le corrigé type n'existe pas à l'emplacement: ${corrigeTypePath}`);
         }
 
         // Lecture et analyse des fichiers
-        const dataBuffer = fs.readFileSync(copieFullPath);
-        const pdfData = await pdfParse(dataBuffer);
-        const copieContent = pdfData.text.trim();
+        const copieBuffer = fs.readFileSync(copieFullPath);
+        const corrigeBuffer = fs.readFileSync(corrigeTypePath);
+        
+        const [copieData, corrigeData] = await Promise.all([
+            pdfParse(copieBuffer),
+            pdfParse(corrigeBuffer)
+        ]);
+
+        const copieContent = copieData.text.trim();
+        const corrigeContent = corrigeData.text.trim();
 
         if (!copieContent) {
             throw new Error("Le contenu de la copie est vide");
         }
 
-        const prompt = `Tu es un professeur qui corrige une copie d'examen. 
-        Voici le corrigé type : ${corrigeTypePath}
+        if (!corrigeContent) {
+            throw new Error("Le contenu du corrigé type est vide");
+        }
+
+        const prompt = `Tu es un professeur qui corrige une copie d'examen. NB: Pas d'emojie ou de symbole sur tes reponses. Bon soit indulgent et gentil. mais pas trop c'est a dire s'il repond de maniere general, donne au moins la moitie des points apres je te laisse avec ton libre arbitre. Et ne donne jamais 0 au moins 4 point.
+        Voici le corrigé type : ${corrigeContent}
         
         Et voici la copie de l'étudiant : ${copieContent}
         
@@ -311,29 +322,55 @@ const analyserCopie = async (id_examen, copiePDF) => {
         }
 
         let content = response.data.choices[0].message.content.trim();
+        console.log("Contenu brut de la réponse:", content);
 
+        // Nettoyage du contenu JSON
         if (content.startsWith("```json")) {
             content = content.slice(7);
-            if (content.endsWith("```")) {
-                content = content.slice(0, -3);
+        }
+        if (content.endsWith("```")) {
+            content = content.slice(0, -3);
+        }
+        content = content.trim();
+        console.log("Contenu nettoyé:", content);
+
+        try {
+            const result = JSON.parse(content);
+            console.log("Résultat parsé:", result);
+
+            // Vérification plus stricte du format
+            if (typeof result.note !== 'number' || typeof result.commentaire !== 'string') {
+                console.error("Format invalide:", {
+                    note: typeof result.note,
+                    commentaire: typeof result.commentaire
+                });
+                throw new Error("Format de réponse invalide: note doit être un nombre et commentaire une chaîne");
             }
-            content = content.trim();
+
+            // Validation des points forts et faibles
+            if (!Array.isArray(result.points_forts)) {
+                result.points_forts = [];
+            }
+            if (!Array.isArray(result.points_faibles)) {
+                result.points_faibles = [];
+            }
+
+            return {
+                note: parseFloat(result.note) || 0,
+                commentaire: JSON.stringify({
+                    general: result.commentaire,
+                    points_forts: result.points_forts,
+                    points_faibles: result.points_faibles
+                })
+            };
+        } catch (parseError) {
+            console.error("Erreur de parsing JSON:", {
+                error: parseError.message,
+                content: content,
+                stack: parseError.stack
+            });
+            throw new Error(`Erreur de parsing JSON: ${parseError.message}`);
         }
-
-        const result = JSON.parse(content);
-
-        if (!result.note || !result.commentaire) {
-            throw new Error("Format de réponse invalide de l'API");
-        }
-
-        return {
-            note: parseFloat(result.note) || 0,
-            commentaire: JSON.stringify({
-                general: result.commentaire,
-                points_forts: result.points_forts || [],
-                points_faibles: result.points_faibles || []
-            })
-        };
 
     } catch (error) {
         console.error("Erreur détaillée:", {

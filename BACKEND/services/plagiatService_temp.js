@@ -6,7 +6,7 @@ const sw = require('stopword');
 const db = require('../configs/db');
 const axios = require('axios');
 
-const dossierCopies = path.join(__dirname, '..', 'uploads');
+const dossierCopies = path.join(__dirname, '..', 'uploads', 'copies');
 const pdfCache = new Map();
 
 function calculerSimilarite(text1, text2) {
@@ -101,14 +101,16 @@ function analyserCopiesForExam(examId, callback) {
       for (const copie of copies) {
         try {
           const chemin = path.join(dossierCopies, copie.fichier_pdf);
+          console.log(`Tentative de lecture du fichier: ${chemin}`);
+          
           if (!fs.existsSync(chemin)) {
-            console.warn(`Fichier non trouvé: ${chemin}`);
+            console.error(`Fichier non trouvé: ${chemin}`);
             continue;
           }
           
           const texte = await lirePDF(chemin);
           if (!texte) {
-            console.warn(`Impossible de lire le PDF: ${chemin}`);
+            console.error(`Impossible de lire le PDF: ${chemin}`);
             continue;
           }
 
@@ -126,6 +128,11 @@ function analyserCopiesForExam(examId, callback) {
       }
 
       console.log(`Nombre de copies valides analysées: ${resultats.length}`);
+
+      if (resultats.length < 2) {
+        console.log("Pas assez de copies valides pour faire une analyse de plagiat");
+        return callback(null, []);
+      }
 
       const rapports = [];
       for (let i = 0; i < resultats.length; i++) {

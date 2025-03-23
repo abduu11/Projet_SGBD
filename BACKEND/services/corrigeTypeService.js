@@ -211,26 +211,60 @@ function getRandomElement(arr) {
 
 const API_KEY = getRandomElement(API_tab);
 
-const getCorrigeTypeDeepSeek = async ( prompt ) => {
+const getCorrigeTypeDeepSeek = async (prompt) => {
     try {
-        const response = await axios.post("https://openrouter.ai/api/v1/chat/completions",
-    {
-            model: "deepseek/deepseek-chat:free",
-            messages: [{role: "system", content: prompt}],
-            max_tokens: 1000,
-        },
-    {
-            headers: {
-            Authorization: `Bearer ${API_KEY}`,
-            "HTTP-Referer": "http://localhost:5000",
-            "X-Title": "Chatbot SUNU SCHOOL AI",
-            "Content-Type": "application/json",
-        },
-    });
+        console.log("Début de la requête à OpenRouter avec la clé API:", API_KEY.substring(0, 10) + "...");
+        
+        const response = await axios.post(
+            "https://openrouter.ai/api/v1/chat/completions",
+            {
+                model: "deepseek/deepseek-chat:free",
+                messages: [{role: "system", content: prompt}],
+                max_tokens: 1000,
+                temperature: 0.7,
+                top_p: 0.9
+            },
+            {
+                headers: {
+                    "Authorization": `Bearer ${API_KEY}`,
+                    "HTTP-Referer": "http://localhost:5000",
+                    "X-Title": "Chatbot SUNU SCHOOL AI",
+                    "Content-Type": "application/json"
+                },
+                timeout: 30000 // 30 secondes de timeout
+            }
+        );
+
+        console.log("Réponse reçue d'OpenRouter");
+        
+        if (!response.data || !response.data.choices || !response.data.choices[0] || !response.data.choices[0].message) {
+            throw new Error("Format de réponse invalide d'OpenRouter");
+        }
+
         return response.data.choices[0].message.content;
     } catch (err) {
-        console.error("Erreur OpenRouter :", err.response ? err.response.data : err.message);
-        throw new Error("Erreur lors de la communication avec OpenRouter.");
+        console.error("Erreur détaillée OpenRouter:", {
+            message: err.message,
+            response: err.response ? {
+                status: err.response.status,
+                data: err.response.data
+            } : null,
+            request: err.request ? {
+                method: err.request.method,
+                path: err.request.path
+            } : null
+        });
+        
+        if (err.response) {
+            // Le serveur a répondu avec un code d'erreur
+            throw new Error(`Erreur OpenRouter (${err.response.status}): ${JSON.stringify(err.response.data)}`);
+        } else if (err.request) {
+            // La requête a été faite mais aucune réponse n'a été reçue
+            throw new Error("Pas de réponse reçue d'OpenRouter");
+        } else {
+            // Une erreur s'est produite lors de la configuration de la requête
+            throw new Error(`Erreur de configuration: ${err.message}`);
+        }
     }
 };
 

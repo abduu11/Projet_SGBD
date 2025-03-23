@@ -1,4 +1,4 @@
-const { analyserCopiesForExam, genererRapport } = require('../services/plagiatService');
+const { analyserCopiesForExam, genererRapport } = require('../services/plagiatService_temp');
 const Plagiat = require('../models/Plagiat');
 const db = require('../configs/db');
 const PDFDocument = require('pdfkit');

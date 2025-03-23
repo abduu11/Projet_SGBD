@@ -121,20 +121,27 @@ const generateCorrectionType = async (req, res) => {
     }
 
     try {
+        console.log(`Début de la génération du corrigé type pour l'examen ${id_examen}`);
+
         const result = await new Promise((resolve, reject) => {
             exam.getPDFFile(id_examen, (err, result) => {
-                if (err) reject(err);
-                else resolve(result);
+                if (err) {
+                    console.error("Erreur lors de la récupération du fichier PDF:", err);
+                    reject(err);
+                } else resolve(result);
             });
         });
 
         if (!result || result.length === 0) {
+            console.error(`Aucun fichier PDF trouvé pour l'examen ${id_examen}`);
             return res.status(404).json({ message: "Fichier PDF non trouvé en base de données" });
         }
 
-        const pdfPath = path.join(__dirname, "../uploads", result[0].fichier_pdf);
+        const pdfPath = path.join(__dirname, "../uploads/copies", result[0].fichier_pdf);
+        console.log(`Chemin du fichier PDF: ${pdfPath}`);
 
         if (!fs.existsSync(pdfPath)) {
+            console.error(`Le fichier PDF n'existe pas: ${pdfPath}`);
             return res.status(404).json({ message: "Le fichier PDF n'existe pas sur le serveur" });
         }
 
@@ -143,17 +150,24 @@ const generateCorrectionType = async (req, res) => {
         const examenContent = pdfData.text.trim();
 
         if (!examenContent) {
+            console.error("Le contenu du PDF est vide");
             return res.status(400).json({ message: "Impossible d'extraire le contenu du fichier PDF" });
         }
 
+        console.log("Contenu du PDF extrait avec succès, longueur:", examenContent.length);
+
         const prompt = `Voici un sujet d'examen extrait d'un fichier PDF. Génère un corrigé type structuré pour cet examen.\n\nSujet d'examen:\n${cleanTextForWinAnsi(examenContent)}\n\nCorrigé type (STP j'insiste ecrit comme si tu avais une feuille A4 je dois pouvoir l'imprimer en PDF):`;
+        
+        console.log("Envoi de la requête à l'API pour générer le corrigé type");
         const corrigeType = await getCorrigeTypeDeepSeek(prompt);
+        console.log("Corrigé type généré avec succès");
 
         const corrigesDir = path.join(__dirname, "../uploads/corriges");
         if (!fs.existsSync(corrigesDir)) {
             fs.mkdirSync(corrigesDir, { recursive: true });
         }
 
+        console.log("Création du PDF du corrigé type");
         const pdfDoc = await PDFDocument.create();
         let page = pdfDoc.addPage([595, 842]);
         const { width, height } = page.getSize();
@@ -220,18 +234,24 @@ const generateCorrectionType = async (req, res) => {
         const correctionFileName = `corrige_${id_examen}.pdf`;
         const correctionFilePath = path.join(corrigesDir, correctionFileName);
         fs.writeFileSync(correctionFilePath, pdfBytes);
+        console.log(`PDF du corrigé type sauvegardé: ${correctionFilePath}`);
 
         Correction.createCorrection({ id_examen, corrige_type: correctionFilePath }, (err, result) => {
             if (err) {
-                console.error("Erreur lors de la création de la correction :", err);
-                return res.status(500).json({ message: "Erreur lors de la création de la correction", error: err });
+                console.error("Erreur lors de la création de la correction en base de données:", err);
+                return res.status(500).json({ message: "Erreur lors de la création de la correction", error: err.message });
             }
+            console.log("Correction créée avec succès en base de données");
             return res.status(201).json({ message: "Correction créée avec succès", correctionId: result });
         });
 
     } catch (error) {
-        console.error("Erreur lors de la génération du corrigé :", error);
-        return res.status(500).json({ message: "Erreur interne du serveur", error: error.message });
+        console.error("Erreur détaillée lors de la génération du corrigé type:", error);
+        return res.status(500).json({ 
+            message: "Erreur lors de la génération du corrigé type", 
+            error: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
     }
 };
 
